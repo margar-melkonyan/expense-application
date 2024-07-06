@@ -10,7 +10,6 @@ import (
 )
 
 type Config struct {
-	Env        string `yaml:"env" env-default:"dev"`
 	HttpServer `yaml:"http_server"`
 	DB         `yaml:"db"`
 }
@@ -32,7 +31,6 @@ type DB struct {
 
 func MustLoad() *Config {
 	configPath := os.Getenv("CONFIG_PATH")
-	fmt.Println(configPath)
 
 	if configPath == "" {
 		slog.Error("CONFIG_PATH environment variable not set")
