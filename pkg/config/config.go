@@ -21,12 +21,11 @@ type HttpServer struct {
 }
 
 type DB struct {
-	Host     string `yaml:"host" env-required:"true"`
-	Name     string `yaml:"name" env-required:"true"`
-	User     string `yaml:"username" env-required:"true"`
-	Password string `yaml:"password" env-required:"true"`
-	SSLMode  string `yaml:"ssl_mode"`
-	Port     string `yaml:"port" env-required:"true"`
+	Host    string `yaml:"host" env-required:"true"`
+	Name    string `yaml:"name" env-required:"true"`
+	User    string `yaml:"username" env-required:"true"`
+	SSLMode string `yaml:"ssl_mode"`
+	Port    string `yaml:"port" env-required:"true"`
 }
 
 func MustLoad() *Config {
