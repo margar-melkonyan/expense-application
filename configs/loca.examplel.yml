@@ -1,0 +1,10 @@
+env: "dev|prod"
+db:
+  host: "dbhost"
+  name: "dbname"
+  username: "db_username"
+  password: "db_password"
+  ssl_mode: "db_ssl_mode"
+  port: "db_port"
+http_server:
+  port: "http_server_port"
