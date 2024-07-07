@@ -13,7 +13,7 @@ CREATE TABLE budgets(
 
 CREATE TABLE categories(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(2048),
+    name VARCHAR(2048) UNIQUE,
     slug VARCHAR(2048),
     created_at TIMESTAMP,
     updated_at TIMESTAMP,

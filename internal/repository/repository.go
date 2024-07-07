@@ -5,16 +5,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type Categories interface {
+type Category interface {
 	GetAll() []model.Category
+	Store(category model.Category) (int, error)
 }
 
 type Repository struct {
-	Categories
+	Category
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		Categories: NewCategoryRepository(db),
+		Category: NewCategoryRepository(db),
 	}
 }

@@ -24,6 +24,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 				"/",
 				h.getCategories,
 			)
+			categories.POST(
+				"/",
+				h.storeCategory,
+			)
 		}
 	}
 

@@ -2,13 +2,14 @@ package service
 
 import (
 	"expense-application/internal/model"
-	repository "expense-application/internal/repository"
+	"expense-application/internal/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type Category interface {
 	GetIncomeByCategory(category model.Category) ([]model.Budget, error)
-	GetAll() ([]model.Category, error)
+	GetAll() []model.Category
+	Store(category model.Category) (int, error)
 }
 
 type Tg interface {
@@ -23,6 +24,6 @@ type Service struct {
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Category: NewCategoryService(repos.Categories),
+		Category: NewCategoryService(repos.Category),
 	}
 }

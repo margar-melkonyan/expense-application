@@ -20,9 +20,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 	case "get_category":
 	}
 
-	s.SendMessage(bot, msg, update)
-
-	return nil
+	return s.SendMessage(bot, msg, update)
 }
 
 func (s *TgService) SendMessage(

@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	handler "expense-application/internal/handler"
+	"expense-application/internal/handler"
 	"fmt"
 	"log/slog"
 	"net/http"
