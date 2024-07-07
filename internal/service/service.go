@@ -15,6 +15,7 @@ type Category interface {
 type Tg interface {
 	CommandHandler(bot *tgbotapi.BotAPI, message tgbotapi.Update) error
 	SendMessage(bot *tgbotapi.BotAPI, message tgbotapi.MessageConfig, update tgbotapi.Update) error
+	CreateKeyboard(commands []string, commandsPerRow int) [][]tgbotapi.KeyboardButton
 }
 
 type Service struct {
@@ -25,5 +26,6 @@ type Service struct {
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Category: NewCategoryService(repos.Category),
+		Tg:       NewTgService(repos.Category),
 	}
 }

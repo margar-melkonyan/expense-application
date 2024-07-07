@@ -1,7 +1,3 @@
--- CREATE users(
---
--- );
-
 CREATE TABLE budgets(
     id SERIAL PRIMARY KEY,
     type VARCHAR(255),
