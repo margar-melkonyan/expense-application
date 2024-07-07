@@ -6,17 +6,30 @@ import (
 	"expense-application/internal/service"
 	"expense-application/pkg/config"
 	"fmt"
+	"log"
 	"log/slog"
+	"os"
 )
 
 func Run(config *config.Config) {
-	repos := repository.NewRepository()
+	db, err := repository.NewPostgresDB(config)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
-	handlers := handler.NewHandler(services)
 
-	srv := new(Server)
+	switch os.Getenv("SERVICE") {
+	case "api":
+		handlers := handler.NewHandler(services)
+		srv := new(Server)
 
-	if err := srv.run(config.HttpServer.Port, handlers); err != nil {
-		slog.Error(fmt.Sprintf("Error occured while running http server: %v", err.Error()))
+		if err := srv.run(config.HttpServer.Port, handlers); err != nil {
+			slog.Error(fmt.Sprintf("Error occured while running http server: %v", err.Error()))
+		}
+	case "tg-bot":
+		runBot()
 	}
 }
