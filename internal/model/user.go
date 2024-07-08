@@ -5,13 +5,13 @@ import (
 	"time"
 )
 
-type Budget struct {
+type User struct {
 	Id        int            `gorm:"primaryKey;autoIncrement"`
-	Title     string         `gorm:"size:4096;not null"`
-	Type      string         `gorm:"type:varchar(255);not null"`
-	Amount    float64        `gorm:"amount:bigint;not null"`
+	TgId      int64          `gorm:"tg_id:bigint;not null"`
+	Name      string         `gorm:"name:varchar(255);not null"`
+	Email     string         `gorm:"email:varchar(255);not null"`
+	Password  string         `gorm:"password:varchar(255);not null"`
 	CreatedAt time.Time      `gorm:"created_at:timestamp;not null"`
 	UpdatedAt time.Time      `gorm:"updated_at:timestamp;not null"`
 	DeletedAt gorm.DeletedAt `gorm:"deleted_at:timestamp;default:null"`
-	User      User           `gorm:"foreignKey:user_id;references:id"`
 }

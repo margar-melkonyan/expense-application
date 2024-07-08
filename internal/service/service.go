@@ -26,6 +26,6 @@ type Service struct {
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Category: NewCategoryService(repos.Category),
-		Tg:       NewTgService(repos.Category),
+		Tg:       NewTgService(repos.Category, repos.Budget, repos.User),
 	}
 }

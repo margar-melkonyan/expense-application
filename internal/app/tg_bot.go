@@ -17,7 +17,7 @@ func runBot(repositories *repository.Repository) {
 		log.Panic(err)
 	}
 
-	bot.Debug = true
+	bot.Debug = false
 
 	slog.Info(fmt.Sprintf("Authorized on account %s", bot.Self.UserName))
 
@@ -31,11 +31,11 @@ func runBot(repositories *repository.Repository) {
 			continue
 		}
 
-		if !update.Message.IsCommand() {
-			continue
-		}
-
-		if err := service.NewTgService(repositories.Category).CommandHandler(bot, update); err != nil {
+		if err := service.NewTgService(
+			repositories.Category,
+			repositories.Budget,
+			repositories.User,
+		).CommandHandler(bot, update); err != nil {
 			slog.Error(err.Error())
 		}
 	}
