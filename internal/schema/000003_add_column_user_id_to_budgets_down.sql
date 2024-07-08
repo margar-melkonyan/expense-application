@@ -1,0 +1,2 @@
+ALTER TABLE IF EXISTS budgets
+DROP COLUMN user_id;

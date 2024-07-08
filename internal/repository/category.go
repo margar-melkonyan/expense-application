@@ -21,7 +21,14 @@ func (repository CategoryRepository) Store(category model.Category) (int, error)
 
 func (repository CategoryRepository) GetAll() []model.Category {
 	var categories []model.Category
-	repository.db.Select("*").Find(&model.Category{}).Scan(&categories)
+	repository.db.Model(model.Category{}).Select("*").Find(&categories)
 
 	return categories
+}
+
+func (repository CategoryRepository) GetCategoriesName() []string {
+	var categoriesName []string
+	repository.db.Model(model.Category{}).Select("name").Find(&categoriesName)
+
+	return categoriesName
 }

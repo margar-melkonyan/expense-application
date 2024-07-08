@@ -1,6 +1,7 @@
 package app
 
 import (
+	"expense-application/internal/repository"
 	"expense-application/internal/service"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -9,7 +10,7 @@ import (
 	"os"
 )
 
-func runBot() {
+func runBot(repositories *repository.Repository) {
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TG_TOKEN"))
 
 	if err != nil {
@@ -30,7 +31,11 @@ func runBot() {
 			continue
 		}
 
-		if err := service.NewTgService().CommandHandler(bot, update); err != nil {
+		if !update.Message.IsCommand() {
+			continue
+		}
+
+		if err := service.NewTgService(repositories.Category).CommandHandler(bot, update); err != nil {
 			slog.Error(err.Error())
 		}
 	}
