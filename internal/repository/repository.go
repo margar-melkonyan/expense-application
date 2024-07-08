@@ -19,14 +19,21 @@ type Category interface {
 	Store(category model.Category) (int, error)
 }
 
+type Budget interface {
+	Create(budget model.Budget) error
+	GetToday(userId int) ([]model.Budget, error)
+}
+
 type Repository struct {
 	Category
 	User
+	Budget
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
 		Category: NewCategoryRepository(db),
 		User:     NewUserRepository(db),
+		Budget:   NewBudgetRepository(db),
 	}
 }
