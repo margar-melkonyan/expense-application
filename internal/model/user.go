@@ -14,4 +14,5 @@ type User struct {
 	CreatedAt time.Time      `gorm:"created_at:timestamp;not null"`
 	UpdatedAt time.Time      `gorm:"updated_at:timestamp;not null"`
 	DeletedAt gorm.DeletedAt `gorm:"deleted_at:timestamp;default:null"`
+	Budget    []Budget
 }

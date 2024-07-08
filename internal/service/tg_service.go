@@ -63,7 +63,7 @@ func NewTgService(
 
 func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	categoriesName := s.categoryRepository.GetCategoriesName()
+	categoriesName := s.categoryRepository.GetCategoriesName(expense)
 	categoriesName = append(categoriesName, "/menu")
 
 	switch update.Message.Command() {
@@ -92,7 +92,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 		}
 	case "confirm":
 		if user.Email != "" {
-			err := s.userRepository.SignUpByTg(user)
+			err := s.userRepository.SignUpByTg(&user)
 			user.Email = ""
 
 			if err != nil {
@@ -174,12 +174,13 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 	}
 
 	if enterBudget {
-		budget.User.Id = user.Id
+		budget = model.Budget{}
+		budget.User, _ = s.userRepository.CurrentTgUser(update.Message.From.ID)
 		budget.Type = expense
 		budget.Amount, _ = strconv.ParseFloat(update.Message.Text, 64)
 		budget.Title = update.Message.Text
 
-		err := s.budgetRepository.Create(budget)
+		err := s.budgetRepository.Create(&budget)
 		if err != nil {
 			slog.Error(err.Error())
 		}
@@ -205,6 +206,10 @@ func (s *TgService) SendMessage(
 }
 
 func (s *TgService) CreateKeyboard(commands []string, commandsPerRow int) [][]tgbotapi.KeyboardButton {
+	if commandsPerRow < 1 {
+		return nil
+	}
+
 	chunkSize := (len(commands) - 1) / commandsPerRow
 
 	if chunkSize < 2 {

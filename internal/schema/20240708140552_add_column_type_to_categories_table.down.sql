@@ -1,0 +1,2 @@
+ALTER TABLE IF EXISTS categories
+DROP COLUMN type;
