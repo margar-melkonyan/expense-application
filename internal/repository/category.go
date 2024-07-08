@@ -19,6 +19,13 @@ func (repository CategoryRepository) Store(category *model.Category) (int, error
 	return category.Id, err
 }
 
+func (repository CategoryRepository) GetByName(title string) (model.Category, error) {
+	var category model.Category
+	err := repository.db.Model(model.Category{}).Select("*").Where("name = ?", title).Find(&category).Error
+
+	return category, err
+}
+
 func (repository CategoryRepository) GetByType(budgetType string) []model.Category {
 	var categories []model.Category
 	repository.db.Model(model.Category{}).Select("*").Where("type = ?", budgetType).Find(&categories)

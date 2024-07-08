@@ -22,6 +22,11 @@ func (repository BudgetRepository) GetToday(userId int) ([]model.Budget, error) 
 	return budgets, err
 }
 
-func (repository BudgetRepository) Create(budget *model.Budget) error {
-	return repository.db.Create(&budget).Error
+func (repository BudgetRepository) Create(budget *model.Budget, category *model.Category) error {
+	repository.db.Create(&budget)
+
+	return repository.db.Create(&model.BudgetCategory{
+		BudgetID:   budget.Id,
+		CategoryID: category.Id,
+	}).Error
 }

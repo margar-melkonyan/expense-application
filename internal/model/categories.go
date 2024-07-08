@@ -12,4 +12,5 @@ type Category struct {
 	CreatedAt time.Time      `gorm:"created_at:timestamp;not null"`
 	UpdatedAt time.Time      `gorm:"updated_at:timestamp;not null"`
 	DeletedAt gorm.DeletedAt `gorm:"deleted_at:timestamp;default:null"`
+	Budgets   []Budget       `gorm:"many2many:budget_categories;"`
 }

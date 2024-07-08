@@ -16,11 +16,12 @@ type User interface {
 type Category interface {
 	GetByType(budgetType string) []model.Category
 	GetCategoriesName(budgetType string) []string
+	GetByName(categoryName string) (model.Category, error)
 	Store(category *model.Category) (int, error)
 }
 
 type Budget interface {
-	Create(budget *model.Budget) error
+	Create(budget *model.Budget, category *model.Category) error
 	GetToday(userId int) ([]model.Budget, error)
 }
 
