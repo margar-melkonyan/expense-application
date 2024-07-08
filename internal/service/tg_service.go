@@ -203,6 +203,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 			}
 			budget = model.Budget{}
 			budgetStatus = ""
+			selectedCategory = ""
 
 			msg.Text = "Menu:"
 			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
