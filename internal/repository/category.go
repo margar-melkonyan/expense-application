@@ -25,3 +25,10 @@ func (repository CategoryRepository) GetAll() []model.Category {
 
 	return categories
 }
+
+func (repository CategoryRepository) GetCategoriesName() []string {
+	var categoriesName []string
+	repository.db.Model(model.Category{}).Select("name").Find(&categoriesName)
+
+	return categoriesName
+}
