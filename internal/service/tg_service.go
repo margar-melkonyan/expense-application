@@ -35,12 +35,15 @@ var (
 		"/cancel",
 	}
 
-	selectedCategory = ""
-	selectedPeriod   = ""
-	enterBudget      = false
-	userExists       = true
-	user             = model.User{}
-	budget           = model.Budget{}
+	selectedCategory  = ""
+	selectedPeriod    = ""
+	selectedType      = ""
+	enterBudgetTitle  = false
+	enterBudgetAmount = false
+	userExists        = true
+	user              = model.User{}
+	budget            = model.Budget{}
+	categoriesName    = []string{}
 )
 
 type TgService struct {
@@ -62,9 +65,9 @@ func NewTgService(
 }
 
 func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	categoriesName := s.categoryRepository.GetCategoriesName(expense)
+	categoriesName = s.categoryRepository.GetCategoriesName(expense)
 	categoriesName = append(categoriesName, "/menu")
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 	switch update.Message.Command() {
 	case "start", "register":
@@ -136,6 +139,9 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 					len(categoriesName)/2,
 				)...,
 			)
+			selectedType = expense
+			categoriesName = s.categoryRepository.GetCategoriesName(selectedType)
+			categoriesName = append(categoriesName, "/menu")
 		case "day":
 			selectedPeriod = "day"
 		case "week":
@@ -160,7 +166,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 		)
 	}
 
-	if slices.Contains(categoriesName[:len(categoriesName)-1], update.Message.Text) {
+	if slices.Contains(categoriesName[:len(categoriesName)-1], update.Message.Text) && categoriesName != nil {
 		selectedCategory = update.Message.Text
 		msg.Text = fmt.Sprintf("Category \"%s\" was selected", selectedCategory)
 
@@ -169,18 +175,28 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 			slog.Error(err.Error())
 		}
 
-		msg.Text = "Enter what the money was spent on:"
-		enterBudget = true
+		msg.Text = "Enter title what was spent on:"
+
+		err = s.SendMessage(bot, msg, update)
+		if err != nil {
+			return err
+		}
+		enterBudgetTitle = true
 	}
 
-	if enterBudget {
-		budget = model.Budget{}
+	if enterBudgetTitle {
 		budget.User, _ = s.userRepository.CurrentTgUser(update.Message.From.ID)
-		budget.Type = expense
-		budget.Amount, _ = strconv.ParseFloat(update.Message.Text, 64)
+		budget.Type = selectedType
 		budget.Title = update.Message.Text
+		msg.Text = "Enter how much was spent on:"
+		enterBudgetAmount = true
+		enterBudgetTitle = false
+	}
 
+	if enterBudgetAmount {
+		budget.Amount, _ = strconv.ParseFloat(update.Message.Text, 64)
 		err := s.budgetRepository.Create(&budget)
+		enterBudgetAmount = false
 		if err != nil {
 			slog.Error(err.Error())
 		}
