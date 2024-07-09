@@ -48,17 +48,20 @@ type TgService struct {
 	categoryRepository repository.Category
 	budgetRepository   repository.Budget
 	userRepository     repository.User
+	pdfService         PDF
 }
 
 func NewTgService(
 	categoryRepository repository.Category,
 	budgetRepository repository.Budget,
 	userRepository repository.User,
+	pdfService PDF,
 ) *TgService {
 	return &TgService{
 		categoryRepository: categoryRepository,
 		budgetRepository:   budgetRepository,
 		userRepository:     userRepository,
+		pdfService:         pdfService,
 	}
 }
 
@@ -171,13 +174,13 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 				)...,
 			)
 		case "day":
-			document, _ := getMaroto().Generate()
+			document := s.pdfService.GenDayReport(selectedType).GetBytes()
 
 			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
 				update.Message.Chat.ID, []interface{}{
 					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
 						Name:  "report.pdf",
-						Bytes: document.GetBytes(),
+						Bytes: document,
 					}),
 				},
 			))

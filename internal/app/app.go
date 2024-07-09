@@ -30,6 +30,6 @@ func Run(config *config.Config) {
 			slog.Error(fmt.Sprintf("Error occured while running http server: %v", err.Error()))
 		}
 	case "tg-bot":
-		runBot(repos)
+		runBot(repos, services)
 	}
 }

@@ -19,27 +19,42 @@ func getMaroto() core.Maroto {
 	return m
 }
 
-func (s *PDFService) GenDayReport(budgetType string) {
+func (s *PDFService) GenDayReport(typeBudget string) core.Document {
 	m := getMaroto()
 	document, err := m.Generate()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = document.Save("docs/assets/pdf/simplestv2.pdf")
+	return document
+}
+
+func (s *PDFService) GenWeekReport(budgetType string) core.Document {
+	m := getMaroto()
+	document, err := m.Generate()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	return document
 }
 
-func (s *PDFService) GenWeekReport(budgetType string) {
+func (s *PDFService) GenMonthReport(budgetType string) core.Document {
+	m := getMaroto()
+	document, err := m.Generate()
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	return document
 }
 
-func (s *PDFService) GenMonthReport(budgetType string) {
+func (s *PDFService) GenYearReport(budgetType string) core.Document {
+	m := getMaroto()
+	document, err := m.Generate()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-}
-
-func (s *PDFService) GenYearReport(budgetType string) {
-
+	return document
 }

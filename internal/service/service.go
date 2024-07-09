@@ -4,6 +4,7 @@ import (
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/johnfercher/maroto/v2/pkg/core"
 )
 
 type Category interface {
@@ -18,10 +19,10 @@ type Tg interface {
 }
 
 type PDF interface {
-	GenDayReport(typeBudget string)
-	GenWeekReport(typeBudget string)
-	GenMonthReport(typeBudget string)
-	GenYearReport(typeBudget string)
+	GenDayReport(typeBudget string) core.Document
+	GenWeekReport(typeBudget string) core.Document
+	GenMonthReport(typeBudget string) core.Document
+	GenYearReport(typeBudget string) core.Document
 }
 
 type Service struct {
@@ -33,7 +34,7 @@ type Service struct {
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Category: NewCategoryService(repos.Category),
-		Tg:       NewTgService(repos.Category, repos.Budget, repos.User),
+		Tg:       NewTgService(repos.Category, repos.Budget, repos.User, NewPdfService()),
 		PDF:      NewPdfService(),
 	}
 }
