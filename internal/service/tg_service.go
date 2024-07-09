@@ -207,10 +207,22 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 		)
 	}
 
-	if budgetStatus == "write_amount" {
-		if !strings.Contains(update.Message.Text, ".") || len(strings.Split(update.Message.Text, ".")[1]) <= 2 {
+	switch budgetStatus {
+	case "write_title":
+		budget.User, _ = s.userRepository.CurrentTgUser(update.Message.From.ID)
+		budget.Type = selectedType
+		budget.Title = update.Message.Text
+		msg.Text = "Enter amount:"
+
+		budgetStatus = "write_amount"
+	case "write_amount":
+		amount, _ := strconv.ParseFloat(update.Message.Text, 64)
+
+		if (!strings.Contains(update.Message.Text, ".") ||
+			len(strings.Split(update.Message.Text, ".")[1]) <= 2) && amount != 0.0 {
+
 			category, _ := s.categoryRepository.GetByName(selectedCategory)
-			budget.Amount, _ = strconv.ParseFloat(update.Message.Text, 64)
+			budget.Amount = amount
 			budget.Amount = math.Round(budget.Amount * 100)
 			err := s.budgetRepository.Create(&budget, &category)
 			if err != nil {
@@ -227,18 +239,10 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 					2,
 				)...,
 			)
+
 		} else {
-			msg.Text = "Number contains more than 2 decimal places"
+			msg.Text = "Amount has invalid value"
 		}
-	}
-
-	if budgetStatus == "write_title" {
-		budget.User, _ = s.userRepository.CurrentTgUser(update.Message.From.ID)
-		budget.Type = selectedType
-		budget.Title = update.Message.Text
-		msg.Text = "Enter amount:"
-
-		budgetStatus = "write_amount"
 	}
 
 	if slices.Contains(categoriesName[:len(categoriesName)-1], update.Message.Text) && categoriesName != nil && selectedCategory == "" {
