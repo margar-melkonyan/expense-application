@@ -33,7 +33,6 @@ var (
 		"/day",
 		"/week",
 		"/month",
-		"/year",
 		"/menu",
 	}
 
@@ -202,20 +201,6 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 			}
 		case "month":
 			document := s.pdfService.GenMonthReport(selectedType, user.Id).GetBytes()
-
-			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
-				update.Message.Chat.ID, []interface{}{
-					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-						Name:  "report.pdf",
-						Bytes: document,
-					}),
-				},
-			))
-			if err != nil {
-				slog.Error(err.Error())
-			}
-		case "year":
-			document := s.pdfService.GenYearReport(selectedType, user.Id).GetBytes()
 
 			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
 				update.Message.Chat.ID, []interface{}{

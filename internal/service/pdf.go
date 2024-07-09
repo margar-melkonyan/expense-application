@@ -11,10 +11,13 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/components/text"
 	"github.com/johnfercher/maroto/v2/pkg/config"
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
+	"github.com/johnfercher/maroto/v2/pkg/consts/fontfamily"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
 	"github.com/johnfercher/maroto/v2/pkg/core"
 	"github.com/johnfercher/maroto/v2/pkg/props"
+	"github.com/pdfcpu/pdfcpu/pkg/font"
 	"log"
+	"log/slog"
 )
 
 const day = "day"
@@ -33,11 +36,20 @@ func NewPdfService(budgetRepository repository.Budget) *PDFService {
 }
 
 func getMaroto(header string, budgetCategories []model.Category) core.Maroto {
+	var contentsRow []core.Row
+	budgetSum := 0.0
+
+	font.UserFontDir = "assets/fonts"
+	err := font.LoadUserFonts()
+	if err != nil {
+		slog.Error(err.Error())
+	}
+
 	cfg := config.NewBuilder().
 		WithPageNumber().
-		WithLeftMargin(25).
-		WithRightMargin(5).
-		WithTopMargin(20).
+		WithLeftMargin(15).
+		WithRightMargin(15).
+		WithTopMargin(10).
 		WithBottomMargin(20).
 		Build()
 
@@ -46,69 +58,114 @@ func getMaroto(header string, budgetCategories []model.Category) core.Maroto {
 
 	m.AddRows(
 		text.NewRow(20, header, props.Text{
-			Top:   3,
 			Style: fontstyle.Bold,
 			Align: align.Center,
 			Size:  18,
 		}),
 	)
 
-	m.AddRow(20, line.NewCol(12))
-
-	var contentsRow []core.Row
-
 	for _, budgetCategory := range budgetCategories {
 		if len(budgetCategory.Budgets) != 0 {
-			m.AddRows(
-				row.New(5).Add(
-					text.NewCol(10, budgetCategory.Name, props.Text{
-						Top:   3,
-						Style: fontstyle.Bold,
-						Align: align.Center,
-						Size:  18,
-					}),
-				),
-			)
+			contentsRow = append(contentsRow, row.New(8).Add(
+				text.NewCol(12, budgetCategory.Name, props.Text{
+					Top:   5,
+					Style: fontstyle.Bold,
+					Align: align.Center,
+					Size:  12,
+				}),
+			).WithStyle(&props.Cell{BackgroundColor: getDarkModerateBlue()}))
 
-			for _, budget := range budgetCategory.Budgets {
-				r := row.New(4).Add(
-					col.New(3),
-					text.NewCol(4, fmt.Sprintf("%s", budget.Title), props.Text{Size: 8, Align: align.Center}),
-					text.NewCol(2, fmt.Sprintf("%.2f", budget.Amount/100), props.Text{Size: 8, Align: align.Center}),
-					text.NewCol(3, fmt.Sprintf("%v", budget.CreatedAt), props.Text{Size: 8, Align: align.Center}),
+			categorySum := 0.0
+
+			for id, budget := range budgetCategory.Budgets {
+				r := row.New(6).Add(
+					text.NewCol(1, fmt.Sprintf("%d", id+1), props.Text{Size: 10, Align: align.Center}),
+					text.NewCol(7, fmt.Sprintf("%s", budget.Title), props.Text{Size: 10, Align: align.Left}),
+					text.NewCol(2, fmt.Sprintf("%.2f руб.", budget.Amount/100), props.Text{Size: 10, Align: align.Center}),
+					text.NewCol(2, fmt.Sprintf("%v", budget.CreatedAt.Format("02.01.2006")), props.Text{Size: 10, Align: align.Center}),
 				)
 
+				if id%2 == 0 {
+					r.WithStyle(&props.Cell{BackgroundColor: getBluishCyan()})
+				} else {
+					r.WithStyle(&props.Cell{BackgroundColor: getLightCyan()})
+				}
+
+				categorySum += budget.Amount / 100
 				contentsRow = append(contentsRow, r)
 			}
+
+			budgetSum += categorySum
+
+			contentsRow = append(contentsRow,
+				row.New(5).Add(
+					col.New(12),
+				),
+				row.New(2).Add(
+					col.New(7),
+					line.NewCol(5),
+				),
+				row.New(12).Add(
+					col.New(7),
+					text.NewCol(2, "Category total:", props.Text{
+						Style: fontstyle.Bold,
+						Size:  10,
+						Align: align.Right,
+					}),
+					text.NewCol(3, fmt.Sprintf("%.2f руб.", categorySum), props.Text{
+						Style:  fontstyle.Bold,
+						Size:   10,
+						Align:  align.Center,
+						Family: fontfamily.Courier,
+					}),
+				))
 		}
 	}
+
+	contentsRow = append(contentsRow,
+		row.New(10).Add(
+			col.New(12),
+		),
+		row.New(12).Add(
+			col.New(7),
+			text.NewCol(2, "Total:", props.Text{
+				Style: fontstyle.Bold,
+				Size:  12,
+				Align: align.Center,
+			}),
+			text.NewCol(3, fmt.Sprintf("%.2f руб.", budgetSum), props.Text{
+				Style: fontstyle.BoldItalic,
+				Size:  12,
+				Align: align.Center,
+			}),
+		))
 
 	m.AddRows(contentsRow...)
 
 	return m
 }
 
-func getDarkGrayColor() *props.Color {
+func getDarkModerateBlue() *props.Color {
 	return &props.Color{
-		Red:   55,
-		Green: 55,
-		Blue:  55,
+		Red:   59,
+		Green: 109,
+		Blue:  144,
 	}
 }
 
-func getBlueColor() *props.Color {
+func getLightCyan() *props.Color {
 	return &props.Color{
-		Red:   10,
-		Green: 10,
-		Blue:  150,
+		Red:   239,
+		Green: 244,
+		Blue:  247,
 	}
 }
 
-func getRedColor() *props.Color {
+func getBluishCyan() *props.Color {
 	return &props.Color{
-		Red:   150,
-		Green: 10,
-		Blue:  10,
+		Red:   211,
+		Green: 240,
+		Blue:  246,
 	}
 }
 
@@ -141,18 +198,6 @@ func (s *PDFService) GenMonthReport(typeBudget string, userId int) core.Document
 	m := getMaroto(fmt.Sprintf("Current %s / %s", month, typeBudget), budgets)
 
 	document, err := m.Generate()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return document
-}
-
-func (s *PDFService) GenYearReport(typeBudget string, userId int) core.Document {
-	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, year)
-	m := getMaroto(fmt.Sprintf("Current %s / %s", year, typeBudget), budgets)
-	document, err := m.Generate()
-
 	if err != nil {
 		log.Fatal(err)
 	}

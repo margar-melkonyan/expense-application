@@ -23,7 +23,7 @@ func (repository BudgetRepository) GetBudgetByCategoryAndPeriod(budgetType strin
 		Where("type = ?", budgetType).
 		Preload("Budgets", func(db *gorm.DB) *gorm.DB {
 			return db.
-				Order("budgets.id").
+				Order("budgets.created_at").
 				Where(fmt.Sprintf("budgets.user_id = ? AND DATE_TRUNC('%s', budgets.created_at) = DATE_TRUNC('%s', CURRENT_DATE)", period, period), userId)
 		}).
 		Find(&budgetsByCategory).Error

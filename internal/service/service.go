@@ -22,7 +22,6 @@ type PDF interface {
 	GenDayReport(typeBudget string, userId int) core.Document
 	GenWeekReport(typeBudget string, userId int) core.Document
 	GenMonthReport(typeBudget string, userId int) core.Document
-	GenYearReport(typeBudget string, userId int) core.Document
 }
 
 type Service struct {
