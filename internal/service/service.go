@@ -19,10 +19,10 @@ type Tg interface {
 }
 
 type PDF interface {
-	GenDayReport(typeBudget string) core.Document
-	GenWeekReport(typeBudget string) core.Document
-	GenMonthReport(typeBudget string) core.Document
-	GenYearReport(typeBudget string) core.Document
+	GenDayReport(typeBudget string, userId int) core.Document
+	GenWeekReport(typeBudget string, userId int) core.Document
+	GenMonthReport(typeBudget string, userId int) core.Document
+	GenYearReport(typeBudget string, userId int) core.Document
 }
 
 type Service struct {
@@ -34,7 +34,7 @@ type Service struct {
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Category: NewCategoryService(repos.Category),
-		Tg:       NewTgService(repos.Category, repos.Budget, repos.User, NewPdfService()),
-		PDF:      NewPdfService(),
+		Tg:       NewTgService(repos.Category, repos.Budget, repos.User, NewPdfService(repos.Budget)),
+		PDF:      NewPdfService(repos.Budget),
 	}
 }

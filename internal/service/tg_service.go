@@ -33,13 +33,13 @@ var (
 		"/day",
 		"/week",
 		"/month",
+		"/year",
 		"/menu",
 	}
 
 	selectedCategory = ""
 	selectedType     = expense
 	userExists       = true
-	user             = model.User{}
 	budget           = model.Budget{}
 	budgetStatus     = ""
 )
@@ -69,12 +69,11 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 	categoriesName := s.categoryRepository.GetCategoriesName(selectedType)
 	categoriesName = append(categoriesName, "/menu")
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+	user, err := s.userRepository.CurrentTgUser(update.Message.From.ID)
 
 	switch update.Message.Command() {
 	case "start", "register":
 		userExists = false
-
-		_, err := s.userRepository.CurrentTgUser(update.Message.From.ID)
 
 		if err == nil {
 			userExists = true
@@ -174,7 +173,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 				)...,
 			)
 		case "day":
-			document := s.pdfService.GenDayReport(selectedType).GetBytes()
+			document := s.pdfService.GenDayReport(selectedType, user.Id).GetBytes()
 
 			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
 				update.Message.Chat.ID, []interface{}{
@@ -188,9 +187,47 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 				slog.Error(err.Error())
 			}
 		case "week":
+			document := s.pdfService.GenWeekReport(selectedType, user.Id).GetBytes()
 
+			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
+				update.Message.Chat.ID, []interface{}{
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.pdf",
+						Bytes: document,
+					}),
+				},
+			))
+			if err != nil {
+				slog.Error(err.Error())
+			}
 		case "month":
+			document := s.pdfService.GenMonthReport(selectedType, user.Id).GetBytes()
 
+			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
+				update.Message.Chat.ID, []interface{}{
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.pdf",
+						Bytes: document,
+					}),
+				},
+			))
+			if err != nil {
+				slog.Error(err.Error())
+			}
+		case "year":
+			document := s.pdfService.GenYearReport(selectedType, user.Id).GetBytes()
+
+			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
+				update.Message.Chat.ID, []interface{}{
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.pdf",
+						Bytes: document,
+					}),
+				},
+			))
+			if err != nil {
+				slog.Error(err.Error())
+			}
 		}
 	}
 

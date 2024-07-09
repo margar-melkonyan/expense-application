@@ -2,6 +2,7 @@ package repository
 
 import (
 	"expense-application/internal/model"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -15,11 +16,19 @@ func NewBudgetRepository(db *gorm.DB) *BudgetRepository {
 	}
 }
 
-func (repository BudgetRepository) GetToday(userId int) ([]model.Budget, error) {
-	var budgets []model.Budget
-	err := repository.db.Model(&model.Budget{}).Where("user_id = ?", userId).Scan(&budgets).Error
+func (repository BudgetRepository) GetBudgetByCategoryAndPeriod(budgetType string, userId int, period string) ([]model.Category, error) {
+	var budgetsByCategory []model.Category
 
-	return budgets, err
+	err := repository.db.Model(&model.Category{}).
+		Where("type = ?", budgetType).
+		Preload("Budgets", func(db *gorm.DB) *gorm.DB {
+			return db.
+				Order("budgets.id").
+				Where(fmt.Sprintf("budgets.user_id = ? AND DATE_TRUNC('%s', budgets.created_at) = DATE_TRUNC('%s', CURRENT_DATE)", period, period), userId)
+		}).
+		Find(&budgetsByCategory).Error
+
+	return budgetsByCategory, err
 }
 
 func (repository BudgetRepository) Create(budget *model.Budget, category *model.Category) error {

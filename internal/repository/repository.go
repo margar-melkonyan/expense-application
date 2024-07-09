@@ -22,7 +22,7 @@ type Category interface {
 
 type Budget interface {
 	Create(budget *model.Budget, category *model.Category) error
-	GetToday(userId int) ([]model.Budget, error)
+	GetBudgetByCategoryAndPeriod(budgetType string, userId int, period string) ([]model.Category, error)
 }
 
 type Repository struct {

@@ -15,5 +15,5 @@ type Budget struct {
 	DeletedAt  gorm.DeletedAt `gorm:"deleted_at:timestamp;default:null"`
 	UserID     uint           `gorm:"foreignkey:User REFERENCES users(id)"`
 	User       User           `gorm:"association_foreignkey:ID"`
-	Categories []Category     `gorm:"many2many:budget_categories;"`
+	Categories []*Category    `gorm:"many2many:budget_categories;"`
 }
