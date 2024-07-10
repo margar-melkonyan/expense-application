@@ -176,7 +176,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 			)
 		case "day":
 			pdf := s.pdfService.GenDayReport(selectedType, user.Id).GetBytes()
-			xlsx := s.xlsxService.GenDayReport(selectedType, user.Id).Bytes()
+			//xlsx := s.xlsxService.GenDayReport(selectedType, user.Id).Bytes()
 
 			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
 				update.Message.Chat.ID, []interface{}{
@@ -184,10 +184,10 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 						Name:  "report.pdf",
 						Bytes: pdf,
 					}),
-					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-						Name:  "report.xlsx",
-						Bytes: xlsx,
-					}),
+					//tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+					//	Name:  "report.xlsx",
+					//	Bytes: xlsx,
+					//}),
 				},
 			))
 			if err != nil {

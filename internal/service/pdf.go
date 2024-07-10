@@ -1,10 +1,10 @@
 package service
 
 import (
+	"expense-application/internal/consts"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	"fmt"
-
 	"github.com/johnfercher/maroto/v2"
 	"github.com/johnfercher/maroto/v2/pkg/components/col"
 	"github.com/johnfercher/maroto/v2/pkg/components/line"
@@ -13,17 +13,13 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/config"
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
+	"github.com/johnfercher/maroto/v2/pkg/consts/pagesize"
 	"github.com/johnfercher/maroto/v2/pkg/core"
 	"github.com/johnfercher/maroto/v2/pkg/props"
-	"github.com/pdfcpu/pdfcpu/pkg/font"
+	fontRepository "github.com/johnfercher/maroto/v2/pkg/repository"
 	"log"
 	"log/slog"
 )
-
-const day = "day"
-const week = "week"
-const month = "month"
-const year = "year"
 
 type PDFService struct {
 	budgetRepository repository.Budget
@@ -36,21 +32,29 @@ func NewPdfService(budgetRepository repository.Budget) *PDFService {
 }
 
 func getMaroto(header string, budgetCategories []model.Category) core.Maroto {
-	var contentsRow []core.Row
-	budgetSum := 0.0
+	fonts, err := fontRepository.New().
+		AddUTF8Font(consts.GothamBlackProFamily, fontstyle.Normal, consts.GothamBlackPro).
+		AddUTF8Font(consts.GothamBlackProFamily, fontstyle.Bold, consts.GothamBlackProBold).
+		AddUTF8Font(consts.GothamBlackProFamily, fontstyle.Italic, consts.GothamBlackProItalic).
+		AddUTF8Font(consts.GothamBlackProFamily, fontstyle.BoldItalic, consts.GothamBlackProBoldItalic).
+		Load()
 
-	font.UserFontDir = "assets/fonts"
-	err := font.LoadUserFonts()
 	if err != nil {
 		slog.Error(err.Error())
 	}
 
+	var contentsRow []core.Row
+	budgetSum := 0.0
+
 	cfg := config.NewBuilder().
+		WithPageSize(pagesize.A4).
 		WithPageNumber().
 		WithLeftMargin(15).
 		WithRightMargin(15).
 		WithTopMargin(10).
 		WithBottomMargin(20).
+		WithCustomFonts(fonts).
+		WithDefaultFont(&props.Font{Family: consts.GothamBlackProFamily}).
 		Build()
 
 	mrt := maroto.New(cfg)
@@ -68,9 +72,10 @@ func getMaroto(header string, budgetCategories []model.Category) core.Maroto {
 		if len(budgetCategory.Budgets) != 0 {
 			contentsRow = append(contentsRow, row.New(8).Add(
 				text.NewCol(12, fmt.Sprintf("%s", budgetCategory.Name), props.Text{
-					Top:   5,
+					Top:   1,
 					Style: fontstyle.Bold,
 					Align: align.Center,
+					Color: getWhite(),
 					Size:  12,
 				}),
 			).WithStyle(&props.Cell{BackgroundColor: getDarkModerateBlue()}))
@@ -79,10 +84,26 @@ func getMaroto(header string, budgetCategories []model.Category) core.Maroto {
 
 			for id, budget := range budgetCategory.Budgets {
 				r := row.New(6).Add(
-					text.NewCol(1, fmt.Sprintf("%d", id+1), props.Text{Size: 10, Align: align.Center}),
-					text.NewCol(7, fmt.Sprintf("%s", budget.Title), props.Text{Size: 10, Align: align.Left}),
-					text.NewCol(2, fmt.Sprintf("%.2f руб.", budget.Amount/100), props.Text{Size: 10, Align: align.Center}),
-					text.NewCol(2, fmt.Sprintf("%v", budget.CreatedAt.Format("02.01.2006")), props.Text{Size: 10, Align: align.Center}),
+					text.NewCol(
+						1,
+						fmt.Sprintf("%d", id+1),
+						props.Text{Size: 10, Align: align.Center},
+					),
+					text.NewCol(
+						7,
+						fmt.Sprintf("%s", budget.Title),
+						props.Text{Size: 10, Align: align.Left},
+					),
+					text.NewCol(
+						2,
+						fmt.Sprintf("%.2f руб.", budget.Amount/100),
+						props.Text{Size: 10, Align: align.Center},
+					),
+					text.NewCol(
+						2,
+						fmt.Sprintf("%v", budget.CreatedAt.Format("02.01.2006")),
+						props.Text{Size: 10, Align: align.Center},
+					),
 				)
 
 				if id%2 == 0 {
@@ -168,31 +189,17 @@ func getBluishCyan() *props.Color {
 	}
 }
 
-func (s *PDFService) GenDayReport(typeBudget string, userId int) core.Document {
-	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, day)
-	m := getMaroto(fmt.Sprintf("Current %s / %s", day, typeBudget), budgets)
+func getWhite() *props.Color {
+	return &props.Color{
+		Red:   255,
+		Blue:  255,
+		Green: 255,
+	}
+}
 
-	//file := excelize.NewFile()
-	//
-	//headers := []string{"ID", "Имя", "Возраст"}
-	//for i, header := range headers {
-	//	file.SetCellValue("Sheet1", fmt.Sprintf("%s%d", string(rune(65+i)), 1), header)
-	//}
-	//
-	//data := [][]interface{}{
-	//	{1, "John", 30},
-	//	{2, "Alex", 20},
-	//	{3, "Bob", 40},
-	//}
-	//
-	//for i, row := range data {
-	//	dataRow := i + 2
-	//	for j, col := range row {
-	//		file.SetCellValue("Sheet1", fmt.Sprintf("%s%d", string(rune(65+j)), dataRow), col)
-	//	}
-	//}
-	//
-	//buffer, _ := file.WriteToBuffer()
+func (s *PDFService) GenDayReport(typeBudget string, userId int) core.Document {
+	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Day)
+	m := getMaroto(fmt.Sprintf("Current %s / %s", consts.Day, typeBudget), budgets)
 
 	document, err := m.Generate()
 	if err != nil {
@@ -203,8 +210,8 @@ func (s *PDFService) GenDayReport(typeBudget string, userId int) core.Document {
 }
 
 func (s *PDFService) GenWeekReport(typeBudget string, userId int) core.Document {
-	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, week)
-	m := getMaroto(fmt.Sprintf("Current %s / %s", week, typeBudget), budgets)
+	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Week)
+	m := getMaroto(fmt.Sprintf("Current %s / %s", consts.Week, typeBudget), budgets)
 	document, err := m.Generate()
 
 	if err != nil {
@@ -215,8 +222,8 @@ func (s *PDFService) GenWeekReport(typeBudget string, userId int) core.Document 
 }
 
 func (s *PDFService) GenMonthReport(typeBudget string, userId int) core.Document {
-	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, month)
-	m := getMaroto(fmt.Sprintf("Current %s / %s", month, typeBudget), budgets)
+	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Month)
+	m := getMaroto(fmt.Sprintf("Current %s / %s", consts.Month, typeBudget), budgets)
 
 	document, err := m.Generate()
 	if err != nil {
