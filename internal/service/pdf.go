@@ -15,6 +15,7 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
 	"github.com/johnfercher/maroto/v2/pkg/consts/pagesize"
 	"github.com/johnfercher/maroto/v2/pkg/core"
+	"github.com/johnfercher/maroto/v2/pkg/core/entity"
 	"github.com/johnfercher/maroto/v2/pkg/props"
 	fontRepository "github.com/johnfercher/maroto/v2/pkg/repository"
 	"log"
@@ -31,20 +32,21 @@ func NewPdfService(budgetRepository repository.Budget) *PDFService {
 	}
 }
 
-func getMaroto(header string, budgetCategories []model.Category) core.Maroto {
-	fonts, err := fontRepository.New().
+func loadFonts() ([]*entity.CustomFont, error) {
+	return fontRepository.New().
 		AddUTF8Font(consts.GothamBlackProFamily, fontstyle.Normal, consts.GothamBlackPro).
 		AddUTF8Font(consts.GothamBlackProFamily, fontstyle.Bold, consts.GothamBlackProBold).
 		AddUTF8Font(consts.GothamBlackProFamily, fontstyle.Italic, consts.GothamBlackProItalic).
 		AddUTF8Font(consts.GothamBlackProFamily, fontstyle.BoldItalic, consts.GothamBlackProBoldItalic).
 		Load()
+}
+
+func genPDF(header string, budgetCategories []model.Category) core.Maroto {
+	fonts, err := loadFonts()
 
 	if err != nil {
 		slog.Error(err.Error())
 	}
-
-	var contentsRow []core.Row
-	budgetSum := 0.0
 
 	cfg := config.NewBuilder().
 		WithPageSize(pagesize.A4).
@@ -59,6 +61,9 @@ func getMaroto(header string, budgetCategories []model.Category) core.Maroto {
 
 	mrt := maroto.New(cfg)
 	m := maroto.NewMetricsDecorator(mrt)
+
+	var contentsRow []core.Row
+	budgetSum := 0.0
 
 	m.AddRows(
 		text.NewRow(20, header, props.Text{
@@ -199,7 +204,7 @@ func getWhite() *props.Color {
 
 func (s *PDFService) GenDayReport(typeBudget string, userId int) core.Document {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Day)
-	m := getMaroto(fmt.Sprintf("Current %s / %s", consts.Day, typeBudget), budgets)
+	m := genPDF(fmt.Sprintf("Current %s / %s", consts.Day, typeBudget), budgets)
 
 	document, err := m.Generate()
 	if err != nil {
@@ -211,7 +216,7 @@ func (s *PDFService) GenDayReport(typeBudget string, userId int) core.Document {
 
 func (s *PDFService) GenWeekReport(typeBudget string, userId int) core.Document {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Week)
-	m := getMaroto(fmt.Sprintf("Current %s / %s", consts.Week, typeBudget), budgets)
+	m := genPDF(fmt.Sprintf("Current %s / %s", consts.Week, typeBudget), budgets)
 	document, err := m.Generate()
 
 	if err != nil {
@@ -223,7 +228,7 @@ func (s *PDFService) GenWeekReport(typeBudget string, userId int) core.Document 
 
 func (s *PDFService) GenMonthReport(typeBudget string, userId int) core.Document {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Month)
-	m := getMaroto(fmt.Sprintf("Current %s / %s", consts.Month, typeBudget), budgets)
+	m := genPDF(fmt.Sprintf("Current %s / %s", consts.Month, typeBudget), budgets)
 
 	document, err := m.Generate()
 	if err != nil {
