@@ -20,14 +20,10 @@ func (s *CategoryService) GetIncomeByCategory(category model.Category) ([]model.
 	return nil, nil
 }
 
-func (s *CategoryService) GetAll() []model.Category {
-	return s.repository.GetAll()
-}
-
 func (s *CategoryService) Store(category model.Category) (int, error) {
 	category.Slug = slug.Make(category.Name)
 
-	id, err := s.repository.Store(category)
+	id, err := s.repository.Store(&category)
 
 	if err != nil {
 		return 0, err

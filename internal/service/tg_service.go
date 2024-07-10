@@ -6,15 +6,22 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log/slog"
+	"math"
 	"reflect"
 	"slices"
 	"strconv"
+	"strings"
 )
 
 const expense = "expense"
 const income = "income"
 
 var (
+	registrationProfileOptions = []string{
+		"/confirm",
+		"/cancel",
+	}
+
 	mainOptions = []string{
 		"/income",
 		"/expense",
@@ -26,51 +33,49 @@ var (
 		"/day",
 		"/week",
 		"/month",
-		"/custom",
 		"/menu",
 	}
 
-	registrationProfileOptions = []string{
-		"/confirm",
-		"/cancel",
-	}
-
 	selectedCategory = ""
-	selectedPeriod   = ""
-	enterBudget      = false
+	selectedType     = expense
 	userExists       = true
-	user             = model.User{}
 	budget           = model.Budget{}
+	budgetStatus     = ""
 )
 
 type TgService struct {
 	categoryRepository repository.Category
 	budgetRepository   repository.Budget
 	userRepository     repository.User
+	pdfService         PDF
+	xlsxService        XLSX
 }
 
 func NewTgService(
 	categoryRepository repository.Category,
 	budgetRepository repository.Budget,
 	userRepository repository.User,
+	pdfService PDF,
+	xlsxService XLSX,
 ) *TgService {
 	return &TgService{
 		categoryRepository: categoryRepository,
 		budgetRepository:   budgetRepository,
 		userRepository:     userRepository,
+		pdfService:         pdfService,
+		xlsxService:        xlsxService,
 	}
 }
 
 func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	categoriesName := s.categoryRepository.GetCategoriesName()
+	categoriesName := s.categoryRepository.GetCategoriesName(selectedType)
 	categoriesName = append(categoriesName, "/menu")
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+	user, err := s.userRepository.CurrentTgUser(update.Message.From.ID)
 
 	switch update.Message.Command() {
 	case "start", "register":
 		userExists = false
-
-		_, err := s.userRepository.CurrentTgUser(update.Message.From.ID)
 
 		if err == nil {
 			userExists = true
@@ -92,7 +97,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 		}
 	case "confirm":
 		if user.Email != "" {
-			err := s.userRepository.SignUpByTg(user)
+			err := s.userRepository.SignUpByTg(&user)
 			user.Email = ""
 
 			if err != nil {
@@ -118,7 +123,6 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 	if userExists {
 		switch update.Message.Command() {
 		case "menu":
-			selectedPeriod = ""
 			selectedCategory = ""
 
 			msg.Text = "Select button:"
@@ -129,21 +133,104 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 				)...,
 			)
 		case "expense":
-			msg.Text = "Select expense categories"
+			selectedType = expense
+			categoriesName = s.categoryRepository.GetCategoriesName(selectedType)
+			categoriesName = append(categoriesName, "/menu")
+
+			msg.Text = fmt.Sprintf("Select %s categories:", selectedType)
 			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
 				s.CreateKeyboard(
 					categoriesName,
 					len(categoriesName)/2,
 				)...,
 			)
+		case "income":
+			selectedType = income
+			categoriesName = s.categoryRepository.GetCategoriesName(selectedType)
+			categoriesName = append(categoriesName, "/menu")
+
+			msg.Text = fmt.Sprintf("Select %s categories:", selectedType)
+			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+				s.CreateKeyboard(
+					categoriesName,
+					2,
+				)...,
+			)
+		case "incomes":
+			selectedType = income
+			msg.Text = "Select period:"
+			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+				s.CreateKeyboard(
+					periodOptions,
+					2,
+				)...,
+			)
+		case "expenses":
+			selectedType = expense
+			msg.Text = "Select period:"
+			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+				s.CreateKeyboard(
+					periodOptions,
+					2,
+				)...,
+			)
 		case "day":
-			selectedPeriod = "day"
+			pdf := s.pdfService.GenDayReport(selectedType, user.Id).GetBytes()
+			xlsx := s.xlsxService.GenDayReport(selectedType, user.Id).Bytes()
+
+			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
+				update.Message.Chat.ID, []interface{}{
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.pdf",
+						Bytes: pdf,
+					}),
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.xlsx",
+						Bytes: xlsx,
+					}),
+				},
+			))
+			if err != nil {
+				slog.Error(err.Error())
+			}
 		case "week":
-			selectedPeriod = "week"
+			pdf := s.pdfService.GenWeekReport(selectedType, user.Id).GetBytes()
+			xlsx := s.xlsxService.GenWeekReport(selectedType, user.Id).Bytes()
+
+			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
+				update.Message.Chat.ID, []interface{}{
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.pdf",
+						Bytes: pdf,
+					}),
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.xlsx",
+						Bytes: xlsx,
+					}),
+				},
+			))
+			if err != nil {
+				slog.Error(err.Error())
+			}
 		case "month":
-			selectedPeriod = "month"
-		case "custom":
-			selectedPeriod = "custom"
+			pdf := s.pdfService.GenMonthReport(selectedType, user.Id).GetBytes()
+			xlsx := s.xlsxService.GenMonthReport(selectedType, user.Id).Bytes()
+
+			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
+				update.Message.Chat.ID, []interface{}{
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.pdf",
+						Bytes: pdf,
+					}),
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.xlsx",
+						Bytes: xlsx,
+					}),
+				},
+			))
+			if err != nil {
+				slog.Error(err.Error())
+			}
 		}
 	}
 
@@ -160,7 +247,45 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 		)
 	}
 
-	if slices.Contains(categoriesName[:len(categoriesName)-1], update.Message.Text) {
+	switch budgetStatus {
+	case "write_title":
+		budget.User, _ = s.userRepository.CurrentTgUser(update.Message.From.ID)
+		budget.Type = selectedType
+		budget.Title = update.Message.Text
+		msg.Text = "Enter amount:"
+
+		budgetStatus = "write_amount"
+	case "write_amount":
+		amount, _ := strconv.ParseFloat(update.Message.Text, 64)
+
+		if (!strings.Contains(update.Message.Text, ".") ||
+			len(strings.Split(update.Message.Text, ".")[1]) <= 2) && amount != 0.0 {
+
+			category, _ := s.categoryRepository.GetByName(selectedCategory)
+			budget.Amount = amount
+			budget.Amount = math.Round(budget.Amount * 100)
+			err := s.budgetRepository.Create(&budget, &category)
+			if err != nil {
+				slog.Error(err.Error())
+			}
+			budget = model.Budget{}
+			budgetStatus = ""
+			selectedCategory = ""
+
+			msg.Text = "Menu:"
+			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+				s.CreateKeyboard(
+					mainOptions,
+					2,
+				)...,
+			)
+
+		} else {
+			msg.Text = "Amount has invalid value"
+		}
+	}
+
+	if slices.Contains(categoriesName[:len(categoriesName)-1], update.Message.Text) && categoriesName != nil && selectedCategory == "" {
 		selectedCategory = update.Message.Text
 		msg.Text = fmt.Sprintf("Category \"%s\" was selected", selectedCategory)
 
@@ -169,20 +294,17 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 			slog.Error(err.Error())
 		}
 
-		msg.Text = "Enter what the money was spent on:"
-		enterBudget = true
-	}
+		msg.Text = "Enter title:"
+		msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+			s.CreateKeyboard(
+				[]string{
+					"/menu",
+				},
+				1,
+			)...,
+		)
 
-	if enterBudget {
-		budget.User.Id = user.Id
-		budget.Type = expense
-		budget.Amount, _ = strconv.ParseFloat(update.Message.Text, 64)
-		budget.Title = update.Message.Text
-
-		err := s.budgetRepository.Create(budget)
-		if err != nil {
-			slog.Error(err.Error())
-		}
+		budgetStatus = "write_title"
 	}
 
 	return s.SendMessage(bot, msg, update)
@@ -205,6 +327,10 @@ func (s *TgService) SendMessage(
 }
 
 func (s *TgService) CreateKeyboard(commands []string, commandsPerRow int) [][]tgbotapi.KeyboardButton {
+	if commandsPerRow < 1 {
+		return nil
+	}
+
 	chunkSize := (len(commands) - 1) / commandsPerRow
 
 	if chunkSize < 2 {

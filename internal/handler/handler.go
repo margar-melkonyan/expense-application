@@ -22,11 +22,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			categories.GET(
 				"/",
-				h.getCategories,
+				//h.getCategories,
 			)
 			categories.POST(
 				"/",
-				h.storeCategory,
+				//h.storeCategory,
 			)
 		}
 	}

@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-func runBot(repositories *repository.Repository) {
+func runBot(repositories *repository.Repository, services *service.Service) {
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TG_TOKEN"))
 
 	if err != nil {
@@ -35,6 +35,8 @@ func runBot(repositories *repository.Repository) {
 			repositories.Category,
 			repositories.Budget,
 			repositories.User,
+			services.PDF,
+			services.XLSX,
 		).CommandHandler(bot, update); err != nil {
 			slog.Error(err.Error())
 		}
