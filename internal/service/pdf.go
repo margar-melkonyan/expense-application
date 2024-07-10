@@ -4,6 +4,7 @@ import (
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	"fmt"
+
 	"github.com/johnfercher/maroto/v2"
 	"github.com/johnfercher/maroto/v2/pkg/components/col"
 	"github.com/johnfercher/maroto/v2/pkg/components/line"
@@ -11,7 +12,6 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/components/text"
 	"github.com/johnfercher/maroto/v2/pkg/config"
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
-	"github.com/johnfercher/maroto/v2/pkg/consts/fontfamily"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
 	"github.com/johnfercher/maroto/v2/pkg/core"
 	"github.com/johnfercher/maroto/v2/pkg/props"
@@ -67,7 +67,7 @@ func getMaroto(header string, budgetCategories []model.Category) core.Maroto {
 	for _, budgetCategory := range budgetCategories {
 		if len(budgetCategory.Budgets) != 0 {
 			contentsRow = append(contentsRow, row.New(8).Add(
-				text.NewCol(12, budgetCategory.Name, props.Text{
+				text.NewCol(12, fmt.Sprintf("%s", budgetCategory.Name), props.Text{
 					Top:   5,
 					Style: fontstyle.Bold,
 					Align: align.Center,
@@ -113,10 +113,9 @@ func getMaroto(header string, budgetCategories []model.Category) core.Maroto {
 						Align: align.Right,
 					}),
 					text.NewCol(3, fmt.Sprintf("%.2f руб.", categorySum), props.Text{
-						Style:  fontstyle.Bold,
-						Size:   10,
-						Align:  align.Center,
-						Family: fontfamily.Courier,
+						Style: fontstyle.Bold,
+						Size:  10,
+						Align: align.Center,
 					}),
 				))
 		}
@@ -172,6 +171,28 @@ func getBluishCyan() *props.Color {
 func (s *PDFService) GenDayReport(typeBudget string, userId int) core.Document {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, day)
 	m := getMaroto(fmt.Sprintf("Current %s / %s", day, typeBudget), budgets)
+
+	//file := excelize.NewFile()
+	//
+	//headers := []string{"ID", "Имя", "Возраст"}
+	//for i, header := range headers {
+	//	file.SetCellValue("Sheet1", fmt.Sprintf("%s%d", string(rune(65+i)), 1), header)
+	//}
+	//
+	//data := [][]interface{}{
+	//	{1, "John", 30},
+	//	{2, "Alex", 20},
+	//	{3, "Bob", 40},
+	//}
+	//
+	//for i, row := range data {
+	//	dataRow := i + 2
+	//	for j, col := range row {
+	//		file.SetCellValue("Sheet1", fmt.Sprintf("%s%d", string(rune(65+j)), dataRow), col)
+	//	}
+	//}
+	//
+	//buffer, _ := file.WriteToBuffer()
 
 	document, err := m.Generate()
 	if err != nil {

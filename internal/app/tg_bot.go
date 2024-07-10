@@ -36,6 +36,7 @@ func runBot(repositories *repository.Repository, services *service.Service) {
 			repositories.Budget,
 			repositories.User,
 			services.PDF,
+			services.XLSX,
 		).CommandHandler(bot, update); err != nil {
 			slog.Error(err.Error())
 		}

@@ -48,6 +48,7 @@ type TgService struct {
 	budgetRepository   repository.Budget
 	userRepository     repository.User
 	pdfService         PDF
+	xlsxService        XLSX
 }
 
 func NewTgService(
@@ -55,12 +56,14 @@ func NewTgService(
 	budgetRepository repository.Budget,
 	userRepository repository.User,
 	pdfService PDF,
+	xlsxService XLSX,
 ) *TgService {
 	return &TgService{
 		categoryRepository: categoryRepository,
 		budgetRepository:   budgetRepository,
 		userRepository:     userRepository,
 		pdfService:         pdfService,
+		xlsxService:        xlsxService,
 	}
 }
 
@@ -172,13 +175,18 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 				)...,
 			)
 		case "day":
-			document := s.pdfService.GenDayReport(selectedType, user.Id).GetBytes()
+			pdf := s.pdfService.GenDayReport(selectedType, user.Id).GetBytes()
+			xlsx := s.xlsxService.GenDayReport(selectedType, user.Id).Bytes()
 
 			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
 				update.Message.Chat.ID, []interface{}{
 					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
 						Name:  "report.pdf",
-						Bytes: document,
+						Bytes: pdf,
+					}),
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.xlsx",
+						Bytes: xlsx,
 					}),
 				},
 			))
@@ -186,13 +194,18 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 				slog.Error(err.Error())
 			}
 		case "week":
-			document := s.pdfService.GenWeekReport(selectedType, user.Id).GetBytes()
+			pdf := s.pdfService.GenWeekReport(selectedType, user.Id).GetBytes()
+			xlsx := s.xlsxService.GenWeekReport(selectedType, user.Id).Bytes()
 
 			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
 				update.Message.Chat.ID, []interface{}{
 					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
 						Name:  "report.pdf",
-						Bytes: document,
+						Bytes: pdf,
+					}),
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.xlsx",
+						Bytes: xlsx,
 					}),
 				},
 			))
@@ -200,13 +213,18 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 				slog.Error(err.Error())
 			}
 		case "month":
-			document := s.pdfService.GenMonthReport(selectedType, user.Id).GetBytes()
+			pdf := s.pdfService.GenMonthReport(selectedType, user.Id).GetBytes()
+			xlsx := s.xlsxService.GenMonthReport(selectedType, user.Id).Bytes()
 
 			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
 				update.Message.Chat.ID, []interface{}{
 					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
 						Name:  "report.pdf",
-						Bytes: document,
+						Bytes: pdf,
+					}),
+					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+						Name:  "report.xlsx",
+						Bytes: xlsx,
 					}),
 				},
 			))

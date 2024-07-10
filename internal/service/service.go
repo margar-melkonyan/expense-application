@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -24,16 +25,30 @@ type PDF interface {
 	GenMonthReport(typeBudget string, userId int) core.Document
 }
 
+type XLSX interface {
+	GenDayReport(typeBudget string, userId int) *bytes.Buffer
+	GenWeekReport(typeBudget string, userId int) *bytes.Buffer
+	GenMonthReport(typeBudget string, userId int) *bytes.Buffer
+}
+
 type Service struct {
 	Category
 	Tg
 	PDF
+	XLSX
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Category: NewCategoryService(repos.Category),
-		Tg:       NewTgService(repos.Category, repos.Budget, repos.User, NewPdfService(repos.Budget)),
-		PDF:      NewPdfService(repos.Budget),
+		Tg: NewTgService(
+			repos.Category,
+			repos.Budget,
+			repos.User,
+			NewPdfService(repos.Budget),
+			NewXLSXService(repos.Budget),
+		),
+		XLSX: NewXLSXService(repos.Budget),
+		PDF:  NewPdfService(repos.Budget),
 	}
 }
