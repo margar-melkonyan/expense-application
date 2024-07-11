@@ -1,6 +1,7 @@
 package service
 
 import (
+	"expense-application/internal/dto/response"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	"github.com/gosimple/slug"
@@ -14,6 +15,10 @@ func NewCategoryService(repository repository.Category) *CategoryService {
 	return &CategoryService{
 		repository: repository,
 	}
+}
+
+func (s *CategoryService) IndexCategories() ([]response.Category, error) {
+	return s.repository.GetCategories()
 }
 
 func (s *CategoryService) GetIncomeByCategory(category model.Category) ([]model.Budget, error) {

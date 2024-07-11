@@ -264,7 +264,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 			category, _ := s.categoryRepository.GetByName(selectedCategory)
 			budget.Amount = amount
 			budget.Amount = math.Round(budget.Amount * 100)
-			err := s.budgetRepository.Create(&budget, &category)
+			err := s.budgetRepository.Store(&budget, &category)
 			if err != nil {
 				slog.Error(err.Error())
 			}

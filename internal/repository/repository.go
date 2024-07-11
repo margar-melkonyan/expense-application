@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"expense-application/internal/dto/response"
 	"expense-application/internal/model"
 	"gorm.io/gorm"
 )
@@ -14,6 +15,7 @@ type User interface {
 }
 
 type Category interface {
+	GetCategories() ([]response.Category, error)
 	GetByType(budgetType string) []model.Category
 	GetCategoriesName(budgetType string) []string
 	GetByName(categoryName string) (model.Category, error)
@@ -21,7 +23,7 @@ type Category interface {
 }
 
 type Budget interface {
-	Create(budget *model.Budget, category *model.Category) error
+	Store(budget *model.Budget, category *model.Category) error
 	GetBudgetByCategoryAndPeriod(budgetType string, userId int, period string) ([]model.Category, error)
 }
 
