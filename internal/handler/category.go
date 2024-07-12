@@ -50,7 +50,7 @@ func (h *Handler) StoreCategory(c *gin.Context) {
 
 	_, err = h.services.Category.Store(category)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Couldn't save it"})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 

@@ -1,9 +1,9 @@
 package request
 
 type User struct {
-	Name                 string `form:"name" json:"name" binding:"required"`
-	TgID                 int64  `from:"tg_id" json:"tg_id" binding:"required"`
-	Email                string `form:"email" json:"email"`
-	Password             string `form:"password" json:"password" binding:"required"`
-	PasswordConfirmation string `form:"password_confirmation" json:"password_confirmation" binding:"required"`
+	Name                 string `json:"name" binding:"required,min=2,max=255"`
+	TgID                 int64  `json:"tg_id" binding:""`
+	Email                string `json:"email"`
+	Password             string `json:"password" binding:"required,min=8,max=255"`
+	PasswordConfirmation string `json:"password_confirmation" binding:"required,min=8,max=255"`
 }
