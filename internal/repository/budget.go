@@ -31,7 +31,7 @@ func (repository BudgetRepository) GetBudgetByCategoryAndPeriod(budgetType strin
 	return budgetsByCategory, err
 }
 
-func (repository BudgetRepository) Create(budget *model.Budget, category *model.Category) error {
+func (repository BudgetRepository) Store(budget *model.Budget, category *model.Category) error {
 	repository.db.Create(&budget)
 
 	return repository.db.Create(&model.BudgetCategory{

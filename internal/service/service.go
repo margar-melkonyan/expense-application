@@ -2,6 +2,8 @@ package service
 
 import (
 	"bytes"
+	"expense-application/internal/dto/request"
+	"expense-application/internal/dto/response"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -9,8 +11,12 @@ import (
 )
 
 type Category interface {
+	IndexCategories() ([]response.Category, error)
+	GetCategoryBySlug(slug string) (model.Category, error)
 	GetIncomeByCategory(category model.Category) ([]model.Budget, error)
 	Store(category model.Category) (int, error)
+	Update(slug string, category request.Category) (int, error)
+	Delete(slug string) (int, error)
 }
 
 type Tg interface {

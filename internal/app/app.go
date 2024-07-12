@@ -1,6 +1,7 @@
 package app
 
 import (
+	"expense-application/internal/db"
 	"expense-application/internal/handler"
 	"expense-application/internal/repository"
 	"expense-application/internal/service"
@@ -12,7 +13,7 @@ import (
 )
 
 func Run(config *config.Config) {
-	db, err := repository.NewPostgresDB(config)
+	db, err := db.NewPostgresDB(config)
 
 	if err != nil {
 		log.Fatalln(err)

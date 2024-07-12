@@ -1,4 +1,4 @@
-package repository
+package db
 
 import (
 	"expense-application/pkg/config"

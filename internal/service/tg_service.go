@@ -5,6 +5,7 @@ import (
 	"expense-application/internal/repository"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/gosimple/slug"
 	"log/slog"
 	"math"
 	"reflect"
@@ -261,10 +262,10 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 		if (!strings.Contains(update.Message.Text, ".") ||
 			len(strings.Split(update.Message.Text, ".")[1]) <= 2) && amount != 0.0 {
 
-			category, _ := s.categoryRepository.GetByName(selectedCategory)
+			category, _ := s.categoryRepository.GetBySlug(slug.Make(selectedCategory))
 			budget.Amount = amount
 			budget.Amount = math.Round(budget.Amount * 100)
-			err := s.budgetRepository.Create(&budget, &category)
+			err := s.budgetRepository.Store(&budget, &category)
 			if err != nil {
 				slog.Error(err.Error())
 			}
