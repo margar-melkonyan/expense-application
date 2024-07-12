@@ -16,10 +16,12 @@ type User interface {
 
 type Category interface {
 	GetCategories() ([]response.Category, error)
+	GetBySlug(slug string) (model.Category, error)
 	GetByType(budgetType string) []model.Category
 	GetCategoriesName(budgetType string) []string
-	GetByName(categoryName string) (model.Category, error)
 	Store(category *model.Category) (int, error)
+	Update(category *model.Category) (int, error)
+	Delete(category *model.Category) (int, error)
 }
 
 type Budget interface {
