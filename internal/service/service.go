@@ -17,6 +17,12 @@ type Category interface {
 	Delete(slug string) (uint, error)
 }
 
+type Budget interface {
+	GetUserBudgets(userID uint) ([]model.Budget, error)
+	Store(budget model.Budget, category model.Category) error
+	Delete(userID uint) (uint, error)
+}
+
 type Tg interface {
 	CommandHandler(bot *tgbotapi.BotAPI, message tgbotapi.Update) error
 	SendMessage(bot *tgbotapi.BotAPI, message tgbotapi.MessageConfig, update tgbotapi.Update) error
@@ -37,6 +43,7 @@ type XLSX interface {
 
 type Service struct {
 	Category
+	Budget
 	Tg
 	PDF
 	XLSX
@@ -45,6 +52,7 @@ type Service struct {
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Category: NewCategoryService(repos.Category),
+		Budget:   NewBudgetService(repos.Budget),
 		Tg: NewTgService(
 			repos.Category,
 			repos.Budget,

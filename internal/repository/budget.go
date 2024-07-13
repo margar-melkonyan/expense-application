@@ -17,7 +17,10 @@ func NewBudgetRepository(db *gorm.DB) *BudgetRepository {
 }
 
 func (repository BudgetRepository) GetUserBudget(userId uint) ([]model.Budget, error) {
-	return nil, nil
+	var budgets []model.Budget
+	err := repository.db.Where("user_id = ?", userId).Find(&budgets).Error
+
+	return budgets, err
 }
 
 func (repository BudgetRepository) GetBudgetByCategoryAndPeriod(budgetType string, userId uint, period string) ([]model.Category, error) {

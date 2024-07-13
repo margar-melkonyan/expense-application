@@ -46,6 +46,19 @@ func (h *Handler) InitRoutes() *gin.Engine {
 				h.DeleteCategory,
 			)
 		}
+
+		budgets := api.Group("/budgets")
+		{
+			budgets.GET(
+				":id/user",
+				h.GetUserBudget,
+			)
+
+			budgets.POST(
+				":id/user",
+				h.StoreBudget,
+			)
+		}
 	}
 
 	return router

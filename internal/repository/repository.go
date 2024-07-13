@@ -24,14 +24,15 @@ type Category interface {
 }
 
 type Budget interface {
+	GetUserBudget(userId uint) ([]model.Budget, error)
 	Store(budget *model.Budget, category *model.Category) error
 	GetBudgetByCategoryAndPeriod(budgetType string, userId uint, period string) ([]model.Category, error)
 }
 
 type Repository struct {
 	Category
-	User
 	Budget
+	User
 }
 
 func NewRepository(db *gorm.DB) *Repository {

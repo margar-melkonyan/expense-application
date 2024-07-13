@@ -88,6 +88,6 @@ func (h *Handler) DeleteCategory(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Success updated!",
+		"message": "Success deleted!",
 	})
 }
