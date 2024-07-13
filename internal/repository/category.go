@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"expense-application/internal/dto/response"
 	"expense-application/internal/model"
 	"gorm.io/gorm"
 )
@@ -14,8 +13,8 @@ func NewCategoryRepository(db *gorm.DB) *CategoryRepository {
 	return &CategoryRepository{db: db}
 }
 
-func (repository CategoryRepository) GetCategories() ([]response.Category, error) {
-	var categories []response.Category
+func (repository CategoryRepository) GetCategories() ([]model.Category, error) {
+	var categories []model.Category
 
 	err := repository.db.Model(&model.Category{}).Find(&categories).Error
 

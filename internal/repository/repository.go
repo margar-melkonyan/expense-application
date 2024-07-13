@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"expense-application/internal/dto/response"
 	"expense-application/internal/model"
 	"gorm.io/gorm"
 )
@@ -15,7 +14,7 @@ type User interface {
 }
 
 type Category interface {
-	GetCategories() ([]response.Category, error)
+	GetCategories() ([]model.Category, error)
 	GetBySlug(slug string) (model.Category, error)
 	GetByType(budgetType string) []model.Category
 	GetCategoriesName(budgetType string) []string

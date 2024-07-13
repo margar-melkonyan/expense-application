@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"expense-application/internal/dto/request"
 	"expense-application/internal/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -38,13 +37,13 @@ func (h *Handler) StoreCategory(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&category)
 
-	if !slices.Contains(types, category.Type) {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Type is not income or expense"})
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+	if !slices.Contains(types, category.Type) {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Type is not income or expense"})
 		return
 	}
 
@@ -61,7 +60,7 @@ func (h *Handler) StoreCategory(c *gin.Context) {
 
 func (h *Handler) UpdateCategory(c *gin.Context) {
 	slug := c.Param("slug")
-	var category request.Category
+	var category model.Category
 
 	err := c.ShouldBindJSON(&category)
 	if err != nil {
