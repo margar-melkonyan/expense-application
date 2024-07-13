@@ -1,8 +1,6 @@
 package service
 
 import (
-	"expense-application/internal/dto/request"
-	"expense-application/internal/dto/response"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	sluger "github.com/gosimple/slug"
@@ -18,7 +16,7 @@ func NewCategoryService(repository repository.Category) *CategoryService {
 	}
 }
 
-func (s *CategoryService) IndexCategories() ([]response.Category, error) {
+func (s *CategoryService) IndexCategories() ([]model.Category, error) {
 	return s.repository.GetCategories()
 }
 
@@ -30,7 +28,7 @@ func (s *CategoryService) GetIncomeByCategory(category model.Category) ([]model.
 	return nil, nil
 }
 
-func (s *CategoryService) Store(category model.Category) (int, error) {
+func (s *CategoryService) Store(category model.Category) (uint, error) {
 	category.Slug = sluger.Make(category.Name)
 
 	id, err := s.repository.Store(&category)
@@ -41,7 +39,7 @@ func (s *CategoryService) Store(category model.Category) (int, error) {
 	return id, nil
 }
 
-func (s *CategoryService) Update(slug string, category request.Category) (int, error) {
+func (s *CategoryService) Update(slug string, category model.Category) (uint, error) {
 	oldCategory, _ := s.repository.GetBySlug(slug)
 	oldCategory.Type = category.Type
 	oldCategory.Name = category.Name
@@ -50,7 +48,7 @@ func (s *CategoryService) Update(slug string, category request.Category) (int, e
 	return s.repository.Update(&oldCategory)
 }
 
-func (s *CategoryService) Delete(slug string) (int, error) {
+func (s *CategoryService) Delete(slug string) (uint, error) {
 	category, err := s.repository.GetBySlug(slug)
 
 	if err != nil {

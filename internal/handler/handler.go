@@ -15,6 +15,7 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
+	router.MaxMultipartMemory = 10 << 20 // 10 MiB files allow
 
 	api := router.Group("/api")
 	{
@@ -43,6 +44,19 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			categories.DELETE(
 				":slug",
 				h.DeleteCategory,
+			)
+		}
+
+		budgets := api.Group("/budgets")
+		{
+			budgets.GET(
+				":id/user",
+				h.GetUserBudget,
+			)
+
+			budgets.POST(
+				":id/user",
+				h.StoreBudget,
 			)
 		}
 	}

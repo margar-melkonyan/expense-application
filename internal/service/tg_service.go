@@ -42,6 +42,7 @@ var (
 	userExists       = true
 	budget           = model.Budget{}
 	budgetStatus     = ""
+	user             = model.User{}
 )
 
 type TgService struct {
@@ -72,7 +73,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 	categoriesName := s.categoryRepository.GetCategoriesName(selectedType)
 	categoriesName = append(categoriesName, "/menu")
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	user, err := s.userRepository.CurrentTgUser(update.Message.From.ID)
+	_, err := s.userRepository.CurrentTgUser(update.Message.From.ID)
 
 	switch update.Message.Command() {
 	case "start", "register":
@@ -236,6 +237,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 	}
 
 	if !userExists && !update.Message.IsCommand() {
+		fmt.Println(update.Message.Text)
 		user.Name = fmt.Sprintf("%s %s", update.Message.From.FirstName, update.Message.From.LastName)
 		user.Email = update.Message.Text
 		user.TgId = update.Message.From.ID
@@ -263,6 +265,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 			len(strings.Split(update.Message.Text, ".")[1]) <= 2) && amount != 0.0 {
 
 			category, _ := s.categoryRepository.GetBySlug(slug.Make(selectedCategory))
+
 			budget.Amount = amount
 			budget.Amount = math.Round(budget.Amount * 100)
 			err := s.budgetRepository.Store(&budget, &category)

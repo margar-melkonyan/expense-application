@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"expense-application/internal/dto/response"
 	"expense-application/internal/model"
 	"gorm.io/gorm"
 )
@@ -14,8 +13,8 @@ func NewCategoryRepository(db *gorm.DB) *CategoryRepository {
 	return &CategoryRepository{db: db}
 }
 
-func (repository CategoryRepository) GetCategories() ([]response.Category, error) {
-	var categories []response.Category
+func (repository CategoryRepository) GetCategories() ([]model.Category, error) {
+	var categories []model.Category
 
 	err := repository.db.Model(&model.Category{}).Find(&categories).Error
 
@@ -43,19 +42,19 @@ func (repository CategoryRepository) GetCategoriesName(budgetType string) []stri
 	return categoriesName
 }
 
-func (repository CategoryRepository) Store(category *model.Category) (int, error) {
+func (repository CategoryRepository) Store(category *model.Category) (uint, error) {
 	err := repository.db.Create(&category).Error
 
 	return category.Id, err
 }
 
-func (repository CategoryRepository) Update(category *model.Category) (int, error) {
+func (repository CategoryRepository) Update(category *model.Category) (uint, error) {
 	err := repository.db.Save(&category).Error
 
 	return category.Id, err
 }
 
-func (repository CategoryRepository) Delete(category *model.Category) (int, error) {
+func (repository CategoryRepository) Delete(category *model.Category) (uint, error) {
 	err := repository.db.Delete(&category).Error
 
 	return category.Id, err

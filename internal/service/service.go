@@ -2,8 +2,6 @@ package service
 
 import (
 	"bytes"
-	"expense-application/internal/dto/request"
-	"expense-application/internal/dto/response"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -11,12 +9,18 @@ import (
 )
 
 type Category interface {
-	IndexCategories() ([]response.Category, error)
+	IndexCategories() ([]model.Category, error)
 	GetCategoryBySlug(slug string) (model.Category, error)
 	GetIncomeByCategory(category model.Category) ([]model.Budget, error)
-	Store(category model.Category) (int, error)
-	Update(slug string, category request.Category) (int, error)
-	Delete(slug string) (int, error)
+	Store(category model.Category) (uint, error)
+	Update(slug string, category model.Category) (uint, error)
+	Delete(slug string) (uint, error)
+}
+
+type Budget interface {
+	GetUserBudgets(userID uint) ([]model.Budget, error)
+	Store(budget model.Budget, category model.Category) error
+	Delete(userID uint) (uint, error)
 }
 
 type Tg interface {
@@ -26,19 +30,20 @@ type Tg interface {
 }
 
 type PDF interface {
-	GenDayReport(typeBudget string, userId int) core.Document
-	GenWeekReport(typeBudget string, userId int) core.Document
-	GenMonthReport(typeBudget string, userId int) core.Document
+	GenDayReport(typeBudget string, userId uint) core.Document
+	GenWeekReport(typeBudget string, userId uint) core.Document
+	GenMonthReport(typeBudget string, userId uint) core.Document
 }
 
 type XLSX interface {
-	GenDayReport(typeBudget string, userId int) *bytes.Buffer
-	GenWeekReport(typeBudget string, userId int) *bytes.Buffer
-	GenMonthReport(typeBudget string, userId int) *bytes.Buffer
+	GenDayReport(typeBudget string, userId uint) *bytes.Buffer
+	GenWeekReport(typeBudget string, userId uint) *bytes.Buffer
+	GenMonthReport(typeBudget string, userId uint) *bytes.Buffer
 }
 
 type Service struct {
 	Category
+	Budget
 	Tg
 	PDF
 	XLSX
@@ -47,6 +52,7 @@ type Service struct {
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Category: NewCategoryService(repos.Category),
+		Budget:   NewBudgetService(repos.Budget),
 		Tg: NewTgService(
 			repos.Category,
 			repos.Budget,

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"expense-application/internal/dto/request"
 	"expense-application/internal/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -38,19 +37,19 @@ func (h *Handler) StoreCategory(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&category)
 
-	if !slices.Contains(types, category.Type) {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Type is not income or expense"})
-		return
-	}
-
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 
+	if !slices.Contains(types, category.Type) {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Type is not income or expense"})
+		return
+	}
+
 	_, err = h.services.Category.Store(category)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Couldn't save it"})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -61,7 +60,7 @@ func (h *Handler) StoreCategory(c *gin.Context) {
 
 func (h *Handler) UpdateCategory(c *gin.Context) {
 	slug := c.Param("slug")
-	var category request.Category
+	var category model.Category
 
 	err := c.ShouldBindJSON(&category)
 	if err != nil {
@@ -89,6 +88,6 @@ func (h *Handler) DeleteCategory(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Success updated!",
+		"message": "Success deleted!",
 	})
 }

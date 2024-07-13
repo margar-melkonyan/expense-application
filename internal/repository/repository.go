@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"expense-application/internal/dto/response"
 	"expense-application/internal/model"
 	"gorm.io/gorm"
 )
@@ -15,24 +14,25 @@ type User interface {
 }
 
 type Category interface {
-	GetCategories() ([]response.Category, error)
+	GetCategories() ([]model.Category, error)
 	GetBySlug(slug string) (model.Category, error)
 	GetByType(budgetType string) []model.Category
 	GetCategoriesName(budgetType string) []string
-	Store(category *model.Category) (int, error)
-	Update(category *model.Category) (int, error)
-	Delete(category *model.Category) (int, error)
+	Store(category *model.Category) (uint, error)
+	Update(category *model.Category) (uint, error)
+	Delete(category *model.Category) (uint, error)
 }
 
 type Budget interface {
+	GetUserBudget(userId uint) ([]model.Budget, error)
 	Store(budget *model.Budget, category *model.Category) error
-	GetBudgetByCategoryAndPeriod(budgetType string, userId int, period string) ([]model.Category, error)
+	GetBudgetByCategoryAndPeriod(budgetType string, userId uint, period string) ([]model.Category, error)
 }
 
 type Repository struct {
 	Category
-	User
 	Budget
+	User
 }
 
 func NewRepository(db *gorm.DB) *Repository {

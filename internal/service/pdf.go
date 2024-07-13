@@ -202,7 +202,7 @@ func getWhite() *props.Color {
 	}
 }
 
-func (s *PDFService) GenDayReport(typeBudget string, userId int) core.Document {
+func (s *PDFService) GenDayReport(typeBudget string, userId uint) core.Document {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Day)
 	m := genPDF(fmt.Sprintf("Current %s / %s", consts.Day, typeBudget), budgets)
 
@@ -214,7 +214,7 @@ func (s *PDFService) GenDayReport(typeBudget string, userId int) core.Document {
 	return document
 }
 
-func (s *PDFService) GenWeekReport(typeBudget string, userId int) core.Document {
+func (s *PDFService) GenWeekReport(typeBudget string, userId uint) core.Document {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Week)
 	m := genPDF(fmt.Sprintf("Current %s / %s", consts.Week, typeBudget), budgets)
 	document, err := m.Generate()
@@ -226,7 +226,7 @@ func (s *PDFService) GenWeekReport(typeBudget string, userId int) core.Document 
 	return document
 }
 
-func (s *PDFService) GenMonthReport(typeBudget string, userId int) core.Document {
+func (s *PDFService) GenMonthReport(typeBudget string, userId uint) core.Document {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Month)
 	m := genPDF(fmt.Sprintf("Current %s / %s", consts.Month, typeBudget), budgets)
 
