@@ -12,9 +12,9 @@ type Category interface {
 	IndexCategories() ([]model.Category, error)
 	GetCategoryBySlug(slug string) (model.Category, error)
 	GetIncomeByCategory(category model.Category) ([]model.Budget, error)
-	Store(category model.Category) (int, error)
-	Update(slug string, category model.Category) (int, error)
-	Delete(slug string) (int, error)
+	Store(category model.Category) (uint, error)
+	Update(slug string, category model.Category) (uint, error)
+	Delete(slug string) (uint, error)
 }
 
 type Tg interface {
@@ -24,15 +24,15 @@ type Tg interface {
 }
 
 type PDF interface {
-	GenDayReport(typeBudget string, userId int) core.Document
-	GenWeekReport(typeBudget string, userId int) core.Document
-	GenMonthReport(typeBudget string, userId int) core.Document
+	GenDayReport(typeBudget string, userId uint) core.Document
+	GenWeekReport(typeBudget string, userId uint) core.Document
+	GenMonthReport(typeBudget string, userId uint) core.Document
 }
 
 type XLSX interface {
-	GenDayReport(typeBudget string, userId int) *bytes.Buffer
-	GenWeekReport(typeBudget string, userId int) *bytes.Buffer
-	GenMonthReport(typeBudget string, userId int) *bytes.Buffer
+	GenDayReport(typeBudget string, userId uint) *bytes.Buffer
+	GenWeekReport(typeBudget string, userId uint) *bytes.Buffer
+	GenMonthReport(typeBudget string, userId uint) *bytes.Buffer
 }
 
 type Service struct {

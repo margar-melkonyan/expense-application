@@ -6,7 +6,7 @@ import (
 )
 
 type Budget struct {
-	Id         int            `json:"id" gorm:"primaryKey;autoIncrement"`
+	Id         uint           `json:"id" gorm:"primaryKey;autoIncrement"`
 	Title      string         `json:"title" gorm:"size:4096;not null"`
 	Type       string         `json:"type" gorm:"type:varchar(255);not null"`
 	Amount     float64        `json:"amount" gorm:"amount:bigint;not null"`

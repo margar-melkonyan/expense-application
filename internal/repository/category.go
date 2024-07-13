@@ -42,19 +42,19 @@ func (repository CategoryRepository) GetCategoriesName(budgetType string) []stri
 	return categoriesName
 }
 
-func (repository CategoryRepository) Store(category *model.Category) (int, error) {
+func (repository CategoryRepository) Store(category *model.Category) (uint, error) {
 	err := repository.db.Create(&category).Error
 
 	return category.Id, err
 }
 
-func (repository CategoryRepository) Update(category *model.Category) (int, error) {
+func (repository CategoryRepository) Update(category *model.Category) (uint, error) {
 	err := repository.db.Save(&category).Error
 
 	return category.Id, err
 }
 
-func (repository CategoryRepository) Delete(category *model.Category) (int, error) {
+func (repository CategoryRepository) Delete(category *model.Category) (uint, error) {
 	err := repository.db.Delete(&category).Error
 
 	return category.Id, err

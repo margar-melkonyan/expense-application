@@ -190,16 +190,16 @@ func genXLSX(header string, budgetCategories []model.Category) *bytes.Buffer {
 	return buffer
 }
 
-func (s XLSXService) GenDayReport(typeBudget string, userId int) *bytes.Buffer {
+func (s XLSXService) GenDayReport(typeBudget string, userId uint) *bytes.Buffer {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Day)
 	return genXLSX(fmt.Sprintf("Current %s / %s", consts.Day, typeBudget), budgets)
 }
-func (s XLSXService) GenWeekReport(typeBudget string, userId int) *bytes.Buffer {
+func (s XLSXService) GenWeekReport(typeBudget string, userId uint) *bytes.Buffer {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Week)
 	return genXLSX(fmt.Sprintf("Current %s / %s", consts.Week, typeBudget), budgets)
 }
 
-func (s XLSXService) GenMonthReport(typeBudget string, userId int) *bytes.Buffer {
+func (s XLSXService) GenMonthReport(typeBudget string, userId uint) *bytes.Buffer {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Month)
 	return genXLSX(fmt.Sprintf("Current %s / %s", consts.Month, typeBudget), budgets)
 }

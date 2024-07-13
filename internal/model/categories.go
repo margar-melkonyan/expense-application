@@ -6,7 +6,7 @@ import (
 )
 
 type Category struct {
-	Id        int            `json:"id"  gorm:"primaryKey;autoIncrement"`
+	Id        uint           `json:"id"  gorm:"primaryKey;autoIncrement"`
 	Name      string         `json:"name" gorm:"type:varchar(255);not null" binding:"required,min=6,max=2048"`
 	Slug      string         `json:"-" gorm:"name:varchar(255);not null;unique"`
 	Type      string         `json:"type" gorm:"type:varchar(255);not null" binding:"required,min=4,max=255"`

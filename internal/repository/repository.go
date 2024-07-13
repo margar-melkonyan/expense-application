@@ -18,14 +18,14 @@ type Category interface {
 	GetBySlug(slug string) (model.Category, error)
 	GetByType(budgetType string) []model.Category
 	GetCategoriesName(budgetType string) []string
-	Store(category *model.Category) (int, error)
-	Update(category *model.Category) (int, error)
-	Delete(category *model.Category) (int, error)
+	Store(category *model.Category) (uint, error)
+	Update(category *model.Category) (uint, error)
+	Delete(category *model.Category) (uint, error)
 }
 
 type Budget interface {
 	Store(budget *model.Budget, category *model.Category) error
-	GetBudgetByCategoryAndPeriod(budgetType string, userId int, period string) ([]model.Category, error)
+	GetBudgetByCategoryAndPeriod(budgetType string, userId uint, period string) ([]model.Category, error)
 }
 
 type Repository struct {
