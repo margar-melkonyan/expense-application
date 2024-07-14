@@ -18,5 +18,5 @@ type Budget struct {
 	Categories []*Category    `json:"-" gorm:"many2many:budget_categories;"`
 
 	// fields only for request
-	CategorySlug string `json:"category_slug" gorm:"-" binding:"required"`
+	CategorySlug string `json:"category_slug,omitempty" gorm:"-"`
 }

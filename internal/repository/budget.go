@@ -16,6 +16,13 @@ func NewBudgetRepository(db *gorm.DB) *BudgetRepository {
 	}
 }
 
+func (repository BudgetRepository) GetBudget(id uint) (*model.Budget, error) {
+	var budget model.Budget
+	err := repository.db.Where("id = ?", id).Find(&budget).Error
+
+	return &budget, err
+}
+
 func (repository BudgetRepository) GetUserBudget(userId uint) ([]model.Budget, error) {
 	var budgets []model.Budget
 	err := repository.db.Where("user_id = ?", userId).Find(&budgets).Error
@@ -45,4 +52,16 @@ func (repository BudgetRepository) Store(budget *model.Budget, category *model.C
 		BudgetID:   budget.Id,
 		CategoryID: category.Id,
 	}).Error
+}
+
+func (repository BudgetRepository) Update(budget *model.Budget) (uint, error) {
+	err := repository.db.Save(&budget).Error
+	return budget.Id, err
+}
+
+func (repository BudgetRepository) Delete(id uint) (uint, error) {
+	var budget model.Budget
+	repository.db.Find(&model.Budget{}).Where("id = ?", id).First(&budget)
+
+	return id, repository.db.Delete(&budget).Error
 }

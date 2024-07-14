@@ -24,9 +24,12 @@ type Category interface {
 }
 
 type Budget interface {
+	GetBudget(id uint) (*model.Budget, error)
 	GetUserBudget(userId uint) ([]model.Budget, error)
 	Store(budget *model.Budget, category *model.Category) error
 	GetBudgetByCategoryAndPeriod(budgetType string, userId uint, period string) ([]model.Category, error)
+	Update(budget *model.Budget) (uint, error)
+	Delete(id uint) (uint, error)
 }
 
 type Repository struct {
