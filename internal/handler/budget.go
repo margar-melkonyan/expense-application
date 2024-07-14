@@ -8,8 +8,29 @@ import (
 	"strconv"
 )
 
-func (h *Handler) GetUserBudget(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+func (h *Handler) GetBudget(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64) // budget_id
+	if id == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "ID is not a type of int",
+		})
+		return
+	}
+
+	budget, err := h.services.Budget.GetBudget(uint(id))
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, budget)
+}
+
+func (h *Handler) GetUserBudgetList(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64) // user_id
 
 	if id == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -58,6 +79,33 @@ func (h *Handler) StoreBudget(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success created!",
 	})
+}
+
+func (h *Handler) UpdateBudget(c *gin.Context) {
+	var budget model.Budget
+	_, err := strconv.ParseUint(c.Param("id"), 10, 64) // budget_id
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "ID is not a type of int",
+		})
+		return
+	}
+
+	err = c.BindJSON(&budget)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = h.services.Budget.Update(budget)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Success updated!"})
 }
 
 func (h *Handler) DeleteBudget(c *gin.Context) {

@@ -51,12 +51,27 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			budgets.GET(
 				":id/user",
-				h.GetUserBudget,
+				h.GetUserBudgetList,
+			)
+
+			budgets.GET(
+				":id",
+				h.GetBudget,
 			)
 
 			budgets.POST(
-				":id/user",
+				"",
 				h.StoreBudget,
+			)
+
+			budgets.PUT(
+				":id",
+				h.UpdateBudget,
+			)
+
+			budgets.DELETE(
+				":id",
+				h.DeleteBudget,
 			)
 		}
 	}

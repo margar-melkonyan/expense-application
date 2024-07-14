@@ -15,14 +15,32 @@ func NewBudgetService(budgetRepository repository.Budget) *BudgetService {
 	}
 }
 
-func (s BudgetService) GetUserBudgets(userID uint) ([]model.Budget, error) {
-	return s.budgetRepository.GetUserBudget(userID)
+func (s *BudgetService) GetBudget(id uint) (*model.Budget, error) {
+	return s.budgetRepository.GetBudget(id)
 }
 
-func (s BudgetService) Store(budget model.Budget, category model.Category) error {
+func (s *BudgetService) GetUserBudgets(userID uint) ([]model.Budget, error) {
+	rawBudgets, err := s.budgetRepository.GetUserBudget(userID)
+	var budgets []model.Budget
+
+	for _, rawBudget := range rawBudgets {
+		rawBudget.Amount /= 100
+		budgets = append(budgets, rawBudget)
+	}
+
+	return budgets, err
+}
+
+func (s *BudgetService) Store(budget model.Budget, category model.Category) error {
+	budget.Amount *= 100
 	return s.budgetRepository.Store(&budget, &category)
 }
 
-func (s *BudgetService) Delete(userId uint) (uint, error) {
-	return 0, nil
+func (s *BudgetService) Update(budget model.Budget) (uint, error) {
+	budget.Amount *= 100
+	return s.budgetRepository.Update(&budget)
+}
+
+func (s *BudgetService) Delete(id uint) (uint, error) {
+	return s.budgetRepository.Delete(id)
 }
