@@ -12,6 +12,7 @@ import (
 type Config struct {
 	HttpServer `yaml:"http_server"`
 	DB         `yaml:"db"`
+	Auth       `yaml:"auth"`
 }
 
 type HttpServer struct {
@@ -26,6 +27,10 @@ type DB struct {
 	User    string `yaml:"username" env-required:"true"`
 	SSLMode string `yaml:"ssl_mode"`
 	Port    string `yaml:"port" env-required:"true"`
+}
+type Auth struct {
+	AccessTokenTTL  string `yaml:"access_token_ttl" env-required:"true"`
+	RefreshTokenTTL string `yaml:"refresh_token_ttl" env-required:"true"`
 }
 
 func MustLoad() *Config {

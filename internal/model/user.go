@@ -17,5 +17,13 @@ type User struct {
 	Budgets   []Budget       `json:"budgets,omitempty" gorm:"-"`
 
 	// fields only for request
+	RefreshToken         []byte `json:"refresh_token,omitempty" gorm:"refresh_token:jsonb;default:null"`
 	PasswordConfirmation string `json:"password_confirmation" gorm:"-"`
+}
+
+type UserResponse struct {
+	Id    uint   `json:"id,omitempty"`
+	Name  string `json:"name"`
+	TgId  uint64 `json:"tg_id,omitempty"`
+	Email string `json:"email"`
 }
