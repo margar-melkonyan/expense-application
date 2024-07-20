@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"expense-application/internal/model"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -51,6 +52,8 @@ func (repository UserRepository) Create(user *model.User) (uint, error) {
 	return user.Id, err
 }
 
-func (repository UserRepository) Update(user *model.User) error {
-	return repository.db.Model(&user).Updates(&user).Error
+func (repository UserRepository) Update(user *model.User, id uint) error {
+	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	user.Password = string(hash)
+	return repository.db.Table("users").Updates(&user).Where("id = ?", id).Error
 }

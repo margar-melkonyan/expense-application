@@ -61,7 +61,7 @@ func (s *AuthService) updateRefreshToken(refreshToken string, user *model.User) 
 		"refresh_token": refreshToken,
 	})
 
-	return s.repository.Update(user)
+	return s.repository.Update(user, user.Id)
 }
 
 func (s *AuthService) SignUp(user *model.User) (map[string]string, error) {

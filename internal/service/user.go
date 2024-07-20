@@ -19,6 +19,6 @@ func (s *UserService) Get(user model.User) (model.User, error) {
 	return s.repository.Get(user.Id)
 }
 
-func (s *UserService) Update(user *model.User) error {
-	return s.repository.Update(user)
+func (s *UserService) Update(user *model.User, id uint) error {
+	return s.repository.Update(user, id)
 }

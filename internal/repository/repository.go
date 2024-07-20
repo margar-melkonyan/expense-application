@@ -11,7 +11,7 @@ type User interface {
 	CurrentTgUser(tgId int64) (model.User, error)
 	CreateByTg(user *model.User) error
 	Create(user *model.User) (uint, error)
-	Update(user *model.User) error
+	Update(user *model.User, id uint) error
 }
 
 type Category interface {

@@ -17,7 +17,7 @@ type Auth interface {
 
 type User interface {
 	Get(user model.User) (model.User, error)
-	Update(user *model.User) error
+	Update(user *model.User, id uint) error
 }
 
 type Category interface {

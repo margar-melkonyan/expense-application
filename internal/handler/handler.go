@@ -26,6 +26,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			auth.POST("/sign-up", h.SignUp)
 			auth.POST("/sign-in", h.SignIn)
 			auth.POST("/refresh-token", h.RefreshToken)
+			auth.POST("/logout", middleware.RequireAuth, h.Logout)
 		}
 
 		categories := api.Group("/categories", middleware.RequireAuth)
@@ -81,6 +82,19 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			budgets.DELETE(
 				":id",
 				h.DeleteBudget,
+			)
+		}
+
+		users := api.Group("/users", middleware.RequireAuth)
+		{
+			users.GET(
+				"current",
+				h.GetCurrentUser,
+			)
+
+			users.PUT(
+				":id",
+				h.UpdateUser,
 			)
 		}
 	}

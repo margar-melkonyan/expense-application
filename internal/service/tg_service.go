@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	"fmt"
@@ -28,6 +30,7 @@ var (
 		"/expense",
 		"/incomes",
 		"/expenses",
+		"/random_password",
 	}
 
 	periodOptions = []string{
@@ -69,6 +72,19 @@ func NewTgService(
 	}
 }
 
+func (s *TgService) createRandomPassword(userID int64) string {
+	bytes := make([]byte, 4)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		panic(err)
+	}
+	user.Password = base64.StdEncoding.EncodeToString(bytes)
+	user, _ = s.userRepository.CurrentTgUser(userID)
+	_ = s.userRepository.Update(&user, user.Id)
+
+	return user.Password
+}
+
 func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	categoriesName := s.categoryRepository.GetCategoriesName(selectedType)
 	categoriesName = append(categoriesName, "/menu")
@@ -107,7 +123,10 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 			}
 			userExists = true
 
-			msg.Text = "You was successfully registered!"
+			msg.Text = fmt.Sprintf(
+				"You was successfully registered!\nYour password for web application is: %s",
+				s.createRandomPassword(update.Message.From.ID),
+			)
 			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
 				s.CreateKeyboard(
 					mainOptions,
@@ -134,6 +153,11 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 					2,
 				)...,
 			)
+		case "random_password":
+			msg.Text = fmt.Sprintf("Your new password : %s", s.createRandomPassword(update.Message.From.ID))
+			if err != nil {
+				slog.Error(err.Error())
+			}
 		case "expense":
 			selectedType = expense
 			categoriesName = s.categoryRepository.GetCategoriesName(selectedType)
@@ -252,7 +276,14 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 
 	switch budgetStatus {
 	case "write_title":
-		budget.User, _ = s.userRepository.CurrentTgUser(update.Message.From.ID)
+		budget.User, err = s.userRepository.CurrentTgUser(update.Message.From.ID)
+
+		if err != nil {
+			budgetStatus = ""
+			msg.Text = "You're not registered!\n Enter /register for registration"
+			break
+		}
+
 		budget.Type = selectedType
 		budget.Title = update.Message.Text
 		msg.Text = "Enter amount:"
