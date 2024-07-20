@@ -99,7 +99,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 		}
 	case "confirm":
 		if user.Email != "" {
-			err := s.userRepository.SignUpByTg(&user)
+			err = s.userRepository.CreateByTg(&user)
 			user.Email = ""
 
 			if err != nil {
