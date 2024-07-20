@@ -97,6 +97,19 @@ func (h *Handler) InitRoutes() *gin.Engine {
 				h.UpdateUser,
 			)
 		}
+
+		reports := api.Group("/reports")
+		{
+			reports.GET(
+				"pdf",
+				h.GeneratePDFReport,
+			)
+
+			reports.GET(
+				"xlsx",
+				h.GenerateXLSXReport,
+			)
+		}
 	}
 
 	return router
