@@ -13,13 +13,13 @@ import (
 )
 
 func Run(config *config.Config) {
-	db, err := db.NewPostgresDB(config)
+	postgresDB, err := db.NewPostgresDB(config)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	repos := repository.NewRepository(db)
+	repos := repository.NewRepository(postgresDB)
 	services := service.NewService(repos)
 
 	switch os.Getenv("SERVICE") {

@@ -4,9 +4,21 @@ import (
 	"bytes"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
+	"github.com/gin-gonic/gin"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/johnfercher/maroto/v2/pkg/core"
 )
+
+type Auth interface {
+	SignIn(user *model.User) (map[string]string, error)
+	SignUp(user *model.User) (map[string]string, error)
+	RefreshToken(ctx *gin.Context)
+}
+
+type User interface {
+	Get(user model.User) (model.User, error)
+	Update(user *model.User) error
+}
 
 type Category interface {
 	IndexCategories() ([]model.Category, error)
@@ -44,8 +56,10 @@ type XLSX interface {
 }
 
 type Service struct {
-	Category
+	Auth
+	User
 	Budget
+	Category
 	Tg
 	PDF
 	XLSX
@@ -53,8 +67,10 @@ type Service struct {
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Category: NewCategoryService(repos.Category),
+		Auth:     NewAuthService(repos.User),
+		User:     NewUserService(repos.User),
 		Budget:   NewBudgetService(repos.Budget),
+		Category: NewCategoryService(repos.Category),
 		Tg: NewTgService(
 			repos.Category,
 			repos.Budget,

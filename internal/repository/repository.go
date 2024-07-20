@@ -6,11 +6,12 @@ import (
 )
 
 type User interface {
-	CurrentUser() (model.User, error)
+	Get(id uint) (model.User, error)
+	GetByEmail(email string) (model.User, error)
 	CurrentTgUser(tgId int64) (model.User, error)
-	SignUpByTg(user *model.User) error
-	SignUp(user *model.User) (model.User, error)
-	SignIn(user *model.User) (model.User, error)
+	CreateByTg(user *model.User) error
+	Create(user *model.User) (uint, error)
+	Update(user *model.User) error
 }
 
 type Category interface {

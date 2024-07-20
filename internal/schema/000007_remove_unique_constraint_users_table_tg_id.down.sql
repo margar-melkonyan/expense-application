@@ -1,0 +1,1 @@
+ALTER TABLE users ADD CONSTRAINT users_tg_id_key UNIQUE (tg_id);
