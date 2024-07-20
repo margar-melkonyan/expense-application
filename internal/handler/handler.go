@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"expense-application/internal/middleware"
 	"expense-application/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -15,6 +16,7 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
+	router.Use(gin.Logger())
 	router.MaxMultipartMemory = 10 << 20 // 10 MiB files allow
 
 	api := router.Group("/api")
@@ -26,7 +28,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			auth.POST("/refresh-token", h.RefreshToken)
 		}
 
-		categories := api.Group("/categories")
+		categories := api.Group("/categories", middleware.RequireAuth)
 		{
 			categories.GET(
 				"",
@@ -54,7 +56,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			)
 		}
 
-		budgets := api.Group("/budgets")
+		budgets := api.Group("/budgets", middleware.RequireAuth)
 		{
 			budgets.GET(
 				":id/user",
