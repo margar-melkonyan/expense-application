@@ -44,3 +44,10 @@ func (h *Handler) SignIn(c *gin.Context) {
 func (h *Handler) RefreshToken(c *gin.Context) {
 	h.services.RefreshToken(c)
 }
+
+func (h *Handler) Logout(c *gin.Context) {
+	c.Set("user", nil)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "You logged out!",
+	})
+}
