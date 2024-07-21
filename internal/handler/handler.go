@@ -96,6 +96,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 				":id",
 				h.UpdateUser,
 			)
+
+			users.PUT(":id/assign-role", h.AssignRoleToUser)
 		}
 
 		reports := api.Group("/reports")
@@ -109,6 +111,19 @@ func (h *Handler) InitRoutes() *gin.Engine {
 				"xlsx",
 				h.GenerateXLSXReport,
 			)
+		}
+
+		roles := api.Group("/roles", middleware.RequireAuth)
+		{
+			roles.GET("", h.GetRoles)
+
+			roles.GET(":id", h.GetRole)
+
+			roles.POST("", h.StoreRole)
+
+			roles.PUT(":id", h.UpdateRole)
+
+			roles.DELETE(":id", h.DeleteRole)
 		}
 	}
 
