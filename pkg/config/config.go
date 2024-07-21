@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 	"log"
 	"log/slog"
 	"os"
@@ -31,6 +32,12 @@ type DB struct {
 type Auth struct {
 	AccessTokenTTL  string `yaml:"access_token_ttl" env-required:"true"`
 	RefreshTokenTTL string `yaml:"refresh_token_ttl" env-required:"true"`
+}
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }
 
 func MustLoad() *Config {
