@@ -190,10 +190,7 @@ func (s *AuthService) RefreshToken(ctx *gin.Context) {
 			return
 		}
 
-		if time.Now().Unix() > exp.Time.Unix() {
-			if s.updateRefreshToken("", &currentUser) != nil {
-				ctx.AbortWithStatusJSON(409, errors.New("couldn't update token"))
-			}
+		if time.Now().Unix() > exp.Time.Unix() && s.updateRefreshToken("", &currentUser) != nil {
 			ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
 				"message": "Token was expired!",
 			})
@@ -206,12 +203,8 @@ func (s *AuthService) RefreshToken(ctx *gin.Context) {
 	accessToken, err := generationToken(currentUser.Id, accessTokenKey, accessTokenDuration)
 	refreshToken, err = generationToken(currentUser.Id, refreshTokenKey, refreshTokenDuration)
 
-	if err != nil {
+	if err != nil && s.updateRefreshToken(refreshToken, &currentUser) != nil {
 		ctx.AbortWithStatusJSON(409, errors.New("error creating token"))
-	}
-
-	if s.updateRefreshToken(refreshToken, &currentUser) != nil {
-		ctx.AbortWithStatusJSON(409, errors.New("couldn't update token"))
 	}
 
 	ctx.JSON(http.StatusOK, map[string]string{

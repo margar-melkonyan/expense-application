@@ -9,7 +9,7 @@ CREATE TABLE budgets
     deleted_at TIMESTAMP DEFAULT NULL
 );
 
-CREATE TABLE categories
+CREATE TABLE IF NOT EXISTS categories
 (
     id         SERIAL PRIMARY KEY,
     name       VARCHAR(2048) UNIQUE,
@@ -19,7 +19,7 @@ CREATE TABLE categories
     deleted_at TIMESTAMP DEFAULT NULL
 );
 
-CREATE TABLE budget_categories
+CREATE TABLE IF NOT EXISTS budget_categories
 (
     budget_id   integer NOT NULL,
     category_id integer NOT NULL,
