@@ -78,11 +78,12 @@ func (s *TgService) createRandomPassword(userID int64) string {
 	if err != nil {
 		panic(err)
 	}
-	user.Password = base64.StdEncoding.EncodeToString(bytes)
+	randomPassword := base64.StdEncoding.EncodeToString(bytes)
+	user.Password = randomPassword
 	user, _ = s.userRepository.CurrentTgUser(userID)
 	_ = s.userRepository.Update(&user, user.Id)
 
-	return user.Password
+	return randomPassword
 }
 
 func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
@@ -124,9 +125,10 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 			userExists = true
 
 			msg.Text = fmt.Sprintf(
-				"You was successfully registered!\nYour password for web application is: %s",
+				"You was successfully registered! \\ Your password for web application is: ||%s||",
 				s.createRandomPassword(update.Message.From.ID),
 			)
+			msg.ParseMode = tgbotapi.ModeMarkdownV2
 			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
 				s.CreateKeyboard(
 					mainOptions,
@@ -155,6 +157,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 			)
 		case "random_password":
 			msg.Text = fmt.Sprintf("Your new password : %s", s.createRandomPassword(update.Message.From.ID))
+			msg.ParseMode = tgbotapi.ModeMarkdownV2
 			if err != nil {
 				slog.Error(err.Error())
 			}
