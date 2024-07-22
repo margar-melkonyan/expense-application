@@ -20,6 +20,14 @@ type User interface {
 	Update(user *model.User, id uint) error
 }
 
+type Role interface {
+	Role(roleID uint) (model.Role, error)
+	Roles() (*[]model.Role, error)
+	StoreRole(role *model.Role) error
+	UpdateRole(role *model.Role, roleID uint) error
+	DeleteRole(roleID uint) error
+}
+
 type Category interface {
 	IndexCategories() ([]model.Category, error)
 	GetCategoryBySlug(slug string) (model.Category, error)
@@ -58,6 +66,7 @@ type XLSX interface {
 type Service struct {
 	Auth
 	User
+	Role
 	Budget
 	Category
 	Tg
@@ -69,6 +78,7 @@ func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Auth:     NewAuthService(repos.User),
 		User:     NewUserService(repos.User),
+		Role:     NewRoleService(repos.Role),
 		Budget:   NewBudgetService(repos.Budget),
 		Category: NewCategoryService(repos.Category),
 		Tg: NewTgService(
