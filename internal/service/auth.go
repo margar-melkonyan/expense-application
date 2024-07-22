@@ -196,8 +196,6 @@ func (s *AuthService) RefreshToken(ctx *gin.Context) {
 			})
 			return
 		}
-
-		ctx.Set("user", currentUser)
 	}
 
 	accessToken, err := generationToken(currentUser.Id, accessTokenKey, accessTokenDuration)
