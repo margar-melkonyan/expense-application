@@ -68,9 +68,11 @@ func RequireAuth(c *gin.Context) {
 			return
 		}
 
-		if postgresDB.First(&user).Error != nil {
+		if postgresDB.Preload("Roles").First(&user).Error != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{})
 		}
+
+		_ = json.Unmarshal(user.Roles[0].Permissions, &user.Roles[0].PermissionsUnmarshalled)
 
 		c.Set("user", user)
 	}

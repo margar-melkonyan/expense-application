@@ -9,6 +9,10 @@ type RoleService struct {
 	repository repository.Role
 }
 
+func (s *RoleService) AssignRole(userRole model.UserRole) error {
+	return s.repository.AssignRole(userRole)
+}
+
 func NewRoleService(repository repository.Role) *RoleService {
 	return &RoleService{
 		repository: repository,

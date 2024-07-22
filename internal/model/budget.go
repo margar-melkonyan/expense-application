@@ -15,7 +15,7 @@ type Budget struct {
 	DeletedAt  gorm.DeletedAt `json:"-" gorm:"deleted_at:timestamp;default:null"`
 	UserID     uint           `json:"user_id" gorm:"foreignkey:User REFERENCES users(id)" binding:"required,min=1"`
 	User       User           `json:"-" gorm:"association_foreignkey:ID"`
-	Categories []*Category    `json:"-" gorm:"many2many:budget_categories;"`
+	Categories []*Category    `json:"-" gorm:"many2many:budget_categories"`
 
 	// fields only for request
 	CategorySlug string `json:"category_slug,omitempty" gorm:"-"`

@@ -118,5 +118,35 @@ func (h *Handler) DeleteRole(c *gin.Context) {
 }
 
 func (h *Handler) AssignRoleToUser(c *gin.Context) {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 0)
 
+	if id == 0 {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"error": "Id isn't a number",
+		})
+		return
+	}
+
+	var userRole model.UserRole
+	err := c.ShouldBindJSON(&userRole)
+
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	userRole.UserID = uint(id)
+
+	err = h.services.AssignRole(userRole)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"error": "Couldn't assign role to user",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success assigned role to user",
+	})
 }
