@@ -1,8 +1,8 @@
-SET TIMEZONE='Europe/Moscow';
+SET
+TIMEZONE='Europe/Moscow';
 
 INSERT INTO roles (title, display_title, permissions, created_at, updated_at)
-VALUES ('user', 'User', '{
-  "permissions": [
+VALUES ('user', 'User', '[
     "category_read",
     "budget_create",
     "budget_read",
@@ -10,12 +10,10 @@ VALUES ('user', 'User', '{
     "budget_delete",
     "user_read",
     "user_update"
-  ]
-}', now(), now());
+  ]', now(), now());
 
 INSERT INTO roles (title, display_title, permissions, created_at, updated_at)
-VALUES ('admin', 'Admin', '{
-  "permissions": [
+VALUES ('admin', 'Admin', '[
     "category_create",
     "category_read",
     "category_update",
@@ -30,5 +28,4 @@ VALUES ('admin', 'Admin', '{
     "role_read",
     "role_update",
     "role_delete"
-  ]
-}', now(), now());
+  ]', now(), now());

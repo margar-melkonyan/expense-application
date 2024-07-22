@@ -14,6 +14,14 @@ type User interface {
 	Update(user *model.User, id uint) error
 }
 
+type Role interface {
+	Role(id uint) (model.Role, error)
+	Roles() (*[]model.Role, error)
+	StoreRole(role *model.Role) error
+	UpdateRole(role *model.Role, id uint) error
+	DeleteRole(id uint) error
+}
+
 type Category interface {
 	GetCategories() ([]model.Category, error)
 	GetBySlug(slug string) (model.Category, error)
@@ -37,6 +45,7 @@ type Repository struct {
 	Category
 	Budget
 	User
+	Role
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -44,5 +53,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		Category: NewCategoryRepository(db),
 		User:     NewUserRepository(db),
 		Budget:   NewBudgetRepository(db),
+		Role:     NewRoleRepository(db),
 	}
 }
