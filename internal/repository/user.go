@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"encoding/json"
 	"errors"
 	"expense-application/internal/model"
 	"golang.org/x/crypto/bcrypt"
@@ -17,9 +18,20 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	}
 }
 
+func addDefaultUserRole(repository *UserRepository, user model.User) error {
+	var role model.Role
+	repository.db.Table("roles").Where("title = ?", "user").First(&role)
+	return repository.db.Create(&model.UserRole{
+		UserID: user.Id,
+		RoleID: role.Id,
+	}).Error
+}
+
 func (repository UserRepository) Get(id uint) (model.User, error) {
 	var user model.User
 	err := repository.db.Find(&user, "id = ?", id).Error
+	_ = json.Unmarshal(user.Roles[0].Permissions, &user.Roles[0].PermissionsUnmarshalled)
+
 	return user, err
 }
 
@@ -36,8 +48,8 @@ func (repository UserRepository) CurrentTgUser(tgId int64) (model.User, error) {
 }
 
 func (repository UserRepository) CreateByTg(user *model.User) error {
-	err := repository.db.Create(&user).Error
-	return err
+	repository.db.Create(&user)
+	return addDefaultUserRole(&repository, *user)
 }
 
 func (repository UserRepository) Create(user *model.User) (uint, error) {
@@ -49,11 +61,12 @@ func (repository UserRepository) Create(user *model.User) (uint, error) {
 	}
 
 	err := repository.db.Create(&user).Error
+	err = addDefaultUserRole(&repository, *user)
 	return user.Id, err
 }
 
 func (repository UserRepository) Update(user *model.User, id uint) error {
 	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	user.Password = string(hash)
-	return repository.db.Table("users").Where("id = ?", id).Updates(&user).Error
+	return repository.db.Table("users").Updates(&user).Error
 }

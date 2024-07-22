@@ -15,6 +15,7 @@ type User struct {
 	UpdatedAt time.Time      `json:"-" gorm:"updated_at:timestamp;not null"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"deleted_at:timestamp;default:null"`
 	Budgets   []Budget       `json:"budgets,omitempty" gorm:"-"`
+	Roles     []Role         `json:"-" gorm:"many2many:user_roles"`
 
 	// fields only for request
 	RefreshToken         []byte `json:"refresh_token,omitempty" gorm:"refresh_token:jsonb;default:null"`
@@ -26,4 +27,5 @@ type UserResponse struct {
 	Name  string `json:"name"`
 	TgId  uint64 `json:"tg_id,omitempty"`
 	Email string `json:"email"`
+	Role  Role   `json:"role"`
 }

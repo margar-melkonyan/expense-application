@@ -13,5 +13,5 @@ type Category struct {
 	CreatedAt time.Time      `json:"-" gorm:"created_at:timestamp;not null"`
 	UpdatedAt time.Time      `json:"-" gorm:"updated_at:timestamp;not null"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"deleted_at:timestamp;default:null"`
-	Budgets   []*Budget      `json:"-" gorm:"many2many:budget_categories;"`
+	Budgets   []*Budget      `json:"-" gorm:"many2many:budget_categories"`
 }

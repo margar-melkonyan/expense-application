@@ -59,3 +59,15 @@ func (repository *RoleRepository) UpdateRole(role *model.Role, id uint) error {
 func (repository *RoleRepository) DeleteRole(id uint) error {
 	return repository.db.Delete(&model.Role{}, id).Error
 }
+
+func (repository *RoleRepository) AssignRole(userRole model.UserRole) error {
+	var currentUserRole model.UserRole
+	currentUserRole.UserID = userRole.UserID
+
+	repository.db.Table("user_roles").
+		Where("user_id = ?", userRole.UserID).
+		First(&currentUserRole).
+		Delete(&currentUserRole)
+
+	return repository.db.Save(&userRole).Error
+}

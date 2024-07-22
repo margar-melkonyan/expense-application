@@ -17,6 +17,7 @@ func (h *Handler) GetCurrentUser(c *gin.Context) {
 			Name:  user.(model.User).Name,
 			TgId:  uint64(user.(model.User).TgId),
 			Email: user.(model.User).Email,
+			Role:  user.(model.User).Roles[0],
 		},
 	})
 }
