@@ -38,3 +38,30 @@ func (s *RoleService) UpdateRole(role *model.Role, roleID uint) error {
 func (s *RoleService) DeleteRole(roleID uint) error {
 	return s.repository.DeleteRole(roleID)
 }
+
+func (s *RoleService) Permissions() map[string][]string {
+	return map[string][]string{
+		"roles": {
+			"roles_create",
+			"roles_read",
+			"roles_update",
+			"roles_delete",
+		},
+		"budgets": {
+			"budgets_create",
+			"budgets_read",
+			"budgets_update",
+			"budgets_delete",
+		},
+		"categories": {
+			"categories_create",
+			"categories_read",
+			"categories_update",
+			"categories_delete",
+		},
+		"users": {
+			"users_read",
+			"users_update",
+		},
+	}
+}

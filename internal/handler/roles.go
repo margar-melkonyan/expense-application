@@ -150,3 +150,9 @@ func (h *Handler) AssignRoleToUser(c *gin.Context) {
 		"message": "Success assigned role to user",
 	})
 }
+
+func (h *Handler) GetPermissions(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"data": h.services.Role.Permissions(),
+	})
+}

@@ -33,26 +33,31 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			categories.GET(
 				"",
+				middleware.CategoriesRead,
 				h.CategoryList,
 			)
 
 			categories.GET(
 				":slug",
+				middleware.CategoriesRead,
 				h.GetCategory,
 			)
 
 			categories.POST(
 				"",
+				middleware.CategoriesCreate,
 				h.StoreCategory,
 			)
 
 			categories.PUT(
 				":slug",
+				middleware.CategoriesUpdate,
 				h.UpdateCategory,
 			)
 
 			categories.DELETE(
 				":slug",
+				middleware.CategoriesDelete,
 				h.DeleteCategory,
 			)
 		}
@@ -61,26 +66,31 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			budgets.GET(
 				":id/user",
+				middleware.BudgetsRead,
 				h.GetUserBudgetList,
 			)
 
 			budgets.GET(
 				":id",
+				middleware.BudgetsRead,
 				h.GetBudget,
 			)
 
 			budgets.POST(
 				"",
+				middleware.BudgetsCreate,
 				h.StoreBudget,
 			)
 
 			budgets.PUT(
 				":id",
+				middleware.BudgetsUpdate,
 				h.UpdateBudget,
 			)
 
 			budgets.DELETE(
 				":id",
+				middleware.BudgetsDelete,
 				h.DeleteBudget,
 			)
 		}
@@ -89,11 +99,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			users.GET(
 				"current",
+				middleware.UsersRead,
 				h.GetCurrentUser,
 			)
 
 			users.PUT(
 				":id",
+				middleware.UsersUpdate,
 				h.UpdateUser,
 			)
 
@@ -115,15 +127,35 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 		roles := api.Group("/roles", middleware.RequireAuth)
 		{
-			roles.GET("", h.GetRoles)
+			roles.GET("",
+				middleware.RolesRead,
+				h.GetRoles,
+			)
 
-			roles.GET(":id", h.GetRole)
+			roles.GET(":id",
+				middleware.RolesRead,
+				h.GetRole,
+			)
 
-			roles.POST("", h.StoreRole)
+			roles.POST("",
+				middleware.RolesCreate,
+				h.StoreRole,
+			)
 
-			roles.PUT(":id", h.UpdateRole)
+			roles.PUT(":id",
+				middleware.RolesUpdate,
+				h.UpdateRole,
+			)
 
-			roles.DELETE(":id", h.DeleteRole)
+			roles.DELETE(":id",
+				middleware.RolesDelete,
+				h.DeleteRole,
+			)
+
+			permissions := roles.Group("/permissions", middleware.RequireAuth)
+			{
+				permissions.GET("", h.GetPermissions)
+			}
 		}
 	}
 
