@@ -25,6 +25,15 @@ func (h *Handler) GetCurrentUser(c *gin.Context) {
 func (h *Handler) UpdateUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64) // user_id
 
+	currentUser, _ := c.Get("user")
+
+	if currentUser.(model.User).Id != uint(id) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "user not found",
+		})
+		return
+	}
+
 	if err != nil {
 		slog.Error(err.Error())
 	}

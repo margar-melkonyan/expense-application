@@ -29,7 +29,7 @@ func addDefaultUserRole(repository *UserRepository, user model.User) error {
 
 func (repository UserRepository) Get(id uint) (model.User, error) {
 	var user model.User
-	err := repository.db.Find(&user, "id = ?", id).Error
+	err := repository.db.Preload("Roles").Find(&user, "id = ?", id).Error
 	_ = json.Unmarshal(user.Roles[0].Permissions, &user.Roles[0].PermissionsUnmarshalled)
 
 	return user, err
@@ -66,7 +66,9 @@ func (repository UserRepository) Create(user *model.User) (uint, error) {
 }
 
 func (repository UserRepository) Update(user *model.User, id uint) error {
-	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	user.Password = string(hash)
-	return repository.db.Table("users").Updates(&user).Error
+	if user.Password != "" {
+		hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		user.Password = string(hash)
+	}
+	return repository.db.Table("users").Where("id = ?", id).Updates(&user).Error
 }

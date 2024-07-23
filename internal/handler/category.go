@@ -32,11 +32,6 @@ func (h *Handler) CategoryList(c *gin.Context) {
 }
 
 func (h *Handler) StoreCategory(c *gin.Context) {
-	if c.GetHeader("Authorization") != "" {
-		c.JSON(http.StatusForbidden, gin.H{})
-		return
-	}
-
 	var category model.Category
 	types := []string{"expense", "income"}
 
@@ -64,11 +59,6 @@ func (h *Handler) StoreCategory(c *gin.Context) {
 }
 
 func (h *Handler) UpdateCategory(c *gin.Context) {
-	if c.GetHeader("Authorization") != "" {
-		c.JSON(http.StatusForbidden, gin.H{})
-		return
-	}
-
 	slug := c.Param("slug")
 	var category model.Category
 
@@ -89,11 +79,6 @@ func (h *Handler) UpdateCategory(c *gin.Context) {
 }
 
 func (h *Handler) DeleteCategory(c *gin.Context) {
-	if c.GetHeader("Authorization") != "" {
-		c.JSON(http.StatusForbidden, gin.H{})
-		return
-	}
-
 	slug := c.Param("slug")
 	_, err := h.services.Category.Delete(slug)
 
