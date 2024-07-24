@@ -22,7 +22,13 @@ func RequireAuth(c *gin.Context) {
 		return
 	}
 
-	token := strings.Split(authorizationHeader, "Bearer ")[1]
+	tokenParts := strings.Split(authorizationHeader, "Bearer ")
+	if len(tokenParts) != 2 {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{})
+		return
+	}
+
+	token := tokenParts[1]
 
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
