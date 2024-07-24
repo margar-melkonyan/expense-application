@@ -7,20 +7,16 @@ import (
 	"strconv"
 )
 
-func (h *Handler) GetRoles(c *gin.Context) {
-	roles, err := h.services.Role.Roles()
-
-	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"error": err.Error(),
-		})
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"data": roles,
-	})
-}
-
+// GetRole
+// @Security ApiKeyAuth[admin]
+// @Tags Roles
+// @Param id path int true "Role ID"
+// @Description Method that return role by ID
+// @ID get-role
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Router /roles/{id} [get]
 func (h *Handler) GetRole(c *gin.Context) {
 	var role model.Role
 	roleID, _ := strconv.ParseUint(c.Param("id"), 10, 0)
@@ -39,6 +35,39 @@ func (h *Handler) GetRole(c *gin.Context) {
 	})
 }
 
+// GetRoles
+// @Security ApiKeyAuth[admin]
+// @Tags Roles
+// @Description Method that return list of roles
+// @ID get-roles
+// @Accept json
+// @Produce json
+// @Success 200 {object} RolesResponse
+// @Router /roles [get]
+func (h *Handler) GetRoles(c *gin.Context) {
+	roles, err := h.services.Role.Roles()
+
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": roles,
+	})
+}
+
+// StoreRole
+// @Security ApiKeyAuth[admin]
+// @Tags Roles
+// @Param form body RoleResponseRequest true "Role form"
+// @Description Method that store role
+// @ID store-roles
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Router /roles [post]
 func (h *Handler) StoreRole(c *gin.Context) {
 	var role model.Role
 	err := c.BindJSON(&role)
@@ -62,6 +91,18 @@ func (h *Handler) StoreRole(c *gin.Context) {
 	})
 }
 
+// UpdateRole
+// @Security ApiKeyAuth[admin]
+// @Tags Roles
+// @Param id path int true "Role ID"
+// @Param form body RoleResponseRequest true "Role form"
+// @Description Method that allow to update role by ID
+// @ID update-roles
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Failure 422 {object} ErrorResponse
+// @Router /roles/{id} [put]
 func (h *Handler) UpdateRole(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 0)
 
@@ -97,6 +138,17 @@ func (h *Handler) UpdateRole(c *gin.Context) {
 	})
 }
 
+// DeleteRole
+// @Security ApiKeyAuth[admin]
+// @Tags Roles
+// @Param id path int true "Role ID"
+// @Description Method that allow to delete role by ID
+// @ID delete-roles
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Failure 422 {object} ErrorResponse
+// @Router /roles/{id} [delete]
 func (h *Handler) DeleteRole(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 0)
 
@@ -117,6 +169,17 @@ func (h *Handler) DeleteRole(c *gin.Context) {
 	})
 }
 
+// AssignRoleToUser
+// @Security ApiKeyAuth[admin]
+// @Tags Roles
+// @Param id path int true "User ID"
+// @Param form body AssignRoleToUserRequest true "Role form"
+// @Description Method that return list of permissions
+// @ID assign-role-to-users
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Router  /users/:id/assign-role  [put]
 func (h *Handler) AssignRoleToUser(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 0)
 
@@ -151,6 +214,15 @@ func (h *Handler) AssignRoleToUser(c *gin.Context) {
 	})
 }
 
+// GetPermissions
+// @Security ApiKeyAuth[admin]
+// @Tags Roles
+// @Description Method that return list of permissions
+// @ID get-permissions
+// @Accept json
+// @Produce json
+// @Success 200 {object} PermissionsResponse
+// @Router /roles/permissions [get]
 func (h *Handler) GetPermissions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"data": h.services.Role.Permissions(),
