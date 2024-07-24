@@ -22,7 +22,13 @@ func RequireAuth(c *gin.Context) {
 		return
 	}
 
-	token := strings.Split(authorizationHeader, "Bearer ")[1]
+	tokenParts := strings.Split(authorizationHeader, "Bearer ")
+	if len(tokenParts) != 2 {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{})
+		return
+	}
+
+	token := tokenParts[1]
 
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -69,10 +75,17 @@ func RequireAuth(c *gin.Context) {
 		}
 
 		if postgresDB.Preload("Roles").First(&user).Error != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message": "User doesn't have access to this resource",
+			})
 		}
 
-		_ = json.Unmarshal(user.Roles[0].Permissions, &user.Roles[0].PermissionsUnmarshalled)
+		if len(user.Roles) != 0 {
+			_ = json.Unmarshal(user.Roles[0].Permissions, &user.Roles[0].PermissionsUnmarshalled)
+		} else {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{})
+			return
+		}
 
 		c.Set("user", user)
 	}

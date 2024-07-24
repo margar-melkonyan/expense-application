@@ -1,31 +1,30 @@
-SET
-TIMEZONE='Europe/Moscow';
+SET TIMEZONE = 'Europe/Moscow';
 
 INSERT INTO roles (title, display_title, permissions, created_at, updated_at)
 VALUES ('user', 'User', '[
-    "category_read",
-    "budget_create",
-    "budget_read",
-    "budget_update",
-    "budget_delete",
-    "user_read",
-    "user_update"
-  ]', now(), now());
+  "categories_read",
+  "budgets_create",
+  "budgets_read",
+  "budgets_update",
+  "budgets_delete",
+  "users_read",
+  "users_update"
+]', now(), now());
 
 INSERT INTO roles (title, display_title, permissions, created_at, updated_at)
 VALUES ('admin', 'Admin', '[
-    "category_create",
-    "category_read",
-    "category_update",
-    "category_delete",
-    "budget_create",
-    "budget_read",
-    "budget_update",
-    "budget_delete",
-    "user_read",
-    "user_update",
-    "role_create",
-    "role_read",
-    "role_update",
-    "role_delete"
-  ]', now(), now());
+  "categories_create",
+  "categories_read",
+  "categories_update",
+  "categories_delete",
+  "budgets_create",
+  "budgets_read",
+  "budgets_update",
+  "budgets_delete",
+  "users_read",
+  "users_update",
+  "roles_create",
+  "roles_read",
+  "roles_update",
+  "roles_delete"
+]', now(), now());

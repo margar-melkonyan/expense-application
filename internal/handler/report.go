@@ -10,6 +10,15 @@ import (
 	"slices"
 )
 
+// GeneratePDFReport
+// @Security ApiKeyAuth
+// @Tags Reports
+// @Description Method for generation PDF report
+// @ID reports-pdf
+// @Accept json
+// @Produce mpfd
+// @Success 200 {object} StatusResponse
+// @Router /reports/pdf [get]
 func (h *Handler) GeneratePDFReport(c *gin.Context) {
 	budgetType := c.Query("budget_type")
 	fmt.Println(budgetType)
@@ -50,6 +59,15 @@ func (h *Handler) GeneratePDFReport(c *gin.Context) {
 	c.DataFromReader(http.StatusOK, int64(contentLength), contentType, bytes.NewReader(file.GetBytes()), extraHeaders)
 }
 
+// GenerateXLSXReport
+// @Security ApiKeyAuth
+// @Tags Reports
+// @Description Method for generation XLSX report
+// @ID reports-xlsx
+// @Accept json
+// @Produce mpfd
+// @Success 200 {object} StatusResponse
+// @Router /reports/xlsx [get]
 func (h *Handler) GenerateXLSXReport(c *gin.Context) {
 	budgetType := c.Query("budget_type")
 	fmt.Println(budgetType)

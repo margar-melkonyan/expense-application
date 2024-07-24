@@ -105,6 +105,7 @@ func (s *AuthService) SignIn(user *model.User) (map[string]string, error) {
 	if err := bcrypt.CompareHashAndPassword([]byte(currentUser.Password), []byte(user.Password)); err != nil {
 		return map[string]string{}, errors.New("password doesn't match")
 	}
+	currentUser.Password = ""
 
 	initTokenKeys()
 	accessToken, err := generationToken(currentUser.Id, accessTokenKey, accessTokenDuration)
@@ -196,14 +197,13 @@ func (s *AuthService) RefreshToken(ctx *gin.Context) {
 			})
 			return
 		}
-
-		ctx.Set("user", currentUser)
 	}
 
 	accessToken, err := generationToken(currentUser.Id, accessTokenKey, accessTokenDuration)
 	refreshToken, err = generationToken(currentUser.Id, refreshTokenKey, refreshTokenDuration)
 
-	if err != nil && s.updateRefreshToken(refreshToken, &currentUser) != nil {
+	res := s.updateRefreshToken(refreshToken, &currentUser)
+	if err != nil && res != nil {
 		ctx.AbortWithStatusJSON(409, errors.New("error creating token"))
 	}
 

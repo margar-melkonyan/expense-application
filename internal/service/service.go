@@ -27,6 +27,7 @@ type Role interface {
 	UpdateRole(role *model.Role, roleID uint) error
 	DeleteRole(roleID uint) error
 	AssignRole(userRole model.UserRole) error
+	Permissions() map[string][]string
 }
 
 type Category interface {
