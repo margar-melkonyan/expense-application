@@ -8,6 +8,15 @@ import (
 	"strconv"
 )
 
+// GetCurrentUser
+// @Security ApiKeyAuth
+// @Tags Users
+// @Description Method allow to get current user
+// @ID users-current
+// @Accept json
+// @Produce json
+// @Success 200 {object} UserResponse
+// @Router /users/current [get]
 func (h *Handler) GetCurrentUser(c *gin.Context) {
 	user, _ := c.Get("user")
 
@@ -22,6 +31,17 @@ func (h *Handler) GetCurrentUser(c *gin.Context) {
 	})
 }
 
+// UpdateUser
+// @Security ApiKeyAuth
+// @Tags Users
+// @Param id path int true "Users ID"
+// @Param form body UserUpdateRequest true "User form"
+// @Description Method allow to update users
+// @ID users-update
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Router /users/{id} [put]
 func (h *Handler) UpdateUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64) // user_id
 

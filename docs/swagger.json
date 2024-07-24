@@ -141,9 +141,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": [
-                            "admin"
-                        ]
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "Method that return list of budgets",
@@ -161,7 +159,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Status"
+                            "$ref": "#/definitions/BudgetsResponse"
                         }
                     }
                 }
@@ -169,12 +167,10 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": [
-                            "admin"
-                        ]
+                        "ApiKeyAuth": []
                     }
                 ],
-                "description": "Method that store role",
+                "description": "Method that store budget",
                 "consumes": [
                     "application/json"
                 ],
@@ -192,7 +188,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/Role"
+                            "$ref": "#/definitions/BudgetCreateRequest"
                         }
                     }
                 ],
@@ -210,9 +206,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": [
-                            "admin"
-                        ]
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "Method that return budget by ID",
@@ -239,7 +233,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Status"
+                            "$ref": "#/definitions/BudgetResponse"
                         }
                     }
                 }
@@ -247,9 +241,7 @@
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": [
-                            "admin"
-                        ]
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "Method that allow to update budget by ID",
@@ -277,7 +269,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/Role"
+                            "$ref": "#/definitions/BudgetUpdateRequest"
                         }
                     }
                 ],
@@ -299,9 +291,7 @@
             "delete": {
                 "security": [
                     {
-                        "ApiKeyAuth": [
-                            "admin"
-                        ]
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "Method that allow to delete budget by ID",
@@ -324,6 +314,249 @@
                         "required": true
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Status"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Method that return list of categories",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "operationId": "categories-get",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CategoriesResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [
+                            "admin"
+                        ]
+                    }
+                ],
+                "description": "Method that store category",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "operationId": "categories-store",
+                "parameters": [
+                    {
+                        "description": "CategoryRequest form",
+                        "name": "form",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Status"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Method that return category by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "operationId": "category-get",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "CategoryRequest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CategoryResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [
+                            "admin"
+                        ]
+                    }
+                ],
+                "description": "Method that update category by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "operationId": "categories-update",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "CategoryRequest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "CategoryRequest form",
+                        "name": "form",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Status"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [
+                            "admin"
+                        ]
+                    }
+                ],
+                "description": "Method that delete category by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "operationId": "categories-delete",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "CategoryRequest ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Status"
+                        }
+                    }
+                }
+            }
+        },
+        "/reports/pdf": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Method for generation PDF report",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Reports"
+                ],
+                "operationId": "reports-pdf",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Status"
+                        }
+                    }
+                }
+            }
+        },
+        "/reports/xlsx": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Method for generation XLSX report",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "tags": [
+                    "Reports"
+                ],
+                "operationId": "reports-xlsx",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -358,7 +591,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/PermissionsResponse"
+                            "$ref": "#/definitions/RolesResponse"
                         }
                     }
                 }
@@ -466,7 +699,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Status"
+                            "$ref": "#/definitions/RoleResponse"
                         }
                     }
                 }
@@ -614,6 +847,80 @@
                     }
                 }
             }
+        },
+        "/users/current": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Method allow to get current user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "operationId": "users-current",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/UserResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Method allow to update users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "operationId": "users-update",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Users ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "User form",
+                        "name": "form",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Status"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -640,6 +947,121 @@
                 "type": {
                     "type": "string",
                     "example": "Bearer"
+                }
+            }
+        },
+        "BudgetCreateRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 10.25
+                },
+                "category_slug": {
+                    "type": "string",
+                    "example": "test-category"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "New car"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "income"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 12
+                }
+            }
+        },
+        "BudgetResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 1000
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "title": {
+                    "type": "string",
+                    "example": "New budget"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "income"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 10
+                }
+            }
+        },
+        "BudgetUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 10.25
+                },
+                "title": {
+                    "type": "string",
+                    "example": "New car"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "income"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 12
+                }
+            }
+        },
+        "BudgetsResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/BudgetResponse"
+                    }
+                }
+            }
+        },
+        "CategoriesResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CategoryResponse"
+                    }
+                }
+            }
+        },
+        "CategoryRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Transport"
+                }
+            }
+        },
+        "CategoryResponse": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Transport"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "income|expense"
                 }
             }
         },
@@ -687,6 +1109,40 @@
                 }
             }
         },
+        "RoleResponse": {
+            "type": "object",
+            "properties": {
+                "display_title": {
+                    "type": "string",
+                    "example": "UserTitle"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PermissionsResponse"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "example": "RoleTitle"
+                }
+            }
+        },
+        "RolesResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RoleResponse"
+                    }
+                }
+            }
+        },
         "SignInRequest": {
             "type": "object",
             "properties": {
@@ -731,6 +1187,51 @@
                 "status": {
                     "type": "string",
                     "example": "Everything is OK"
+                }
+            }
+        },
+        "UserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "jon_doe@gmail.com"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 14
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Jon Doe"
+                },
+                "role": {
+                    "$ref": "#/definitions/RoleResponse"
+                },
+                "tg_id": {
+                    "type": "integer",
+                    "example": 131231231231323
+                }
+            }
+        },
+        "UserUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "jon_doe@gmail.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Jon Doe"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "qwerty"
+                },
+                "tg_id": {
+                    "type": "integer",
+                    "example": 131231231231323
                 }
             }
         }

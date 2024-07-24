@@ -15,7 +15,7 @@ import (
 // @ID get-role
 // @Accept json
 // @Produce json
-// @Success 200 {object} StatusResponse
+// @Success 200 {object} RoleResponse
 // @Router /roles/{id} [get]
 func (h *Handler) GetRole(c *gin.Context) {
 	var role model.Role

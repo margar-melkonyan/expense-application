@@ -18,6 +18,86 @@ definitions:
         example: Bearer
         type: string
     type: object
+  BudgetCreateRequest:
+    properties:
+      amount:
+        example: 10.25
+        type: number
+      category_slug:
+        example: test-category
+        type: string
+      title:
+        example: New car
+        type: string
+      type:
+        example: income
+        type: string
+      user_id:
+        example: 12
+        type: integer
+    type: object
+  BudgetResponse:
+    properties:
+      amount:
+        example: 1000
+        type: number
+      id:
+        example: 10
+        type: integer
+      title:
+        example: New budget
+        type: string
+      type:
+        example: income
+        type: string
+      user_id:
+        example: 10
+        type: integer
+    type: object
+  BudgetUpdateRequest:
+    properties:
+      amount:
+        example: 10.25
+        type: number
+      title:
+        example: New car
+        type: string
+      type:
+        example: income
+        type: string
+      user_id:
+        example: 12
+        type: integer
+    type: object
+  BudgetsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/BudgetResponse'
+        type: array
+    type: object
+  CategoriesResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/CategoryResponse'
+        type: array
+    type: object
+  CategoryRequest:
+    properties:
+      name:
+        example: Transport
+        type: string
+    type: object
+  CategoryResponse:
+    properties:
+      name:
+        example: Transport
+        type: string
+      type:
+        example: income|expense
+        type: string
+    type: object
   Error:
     properties:
       message:
@@ -46,6 +126,29 @@ definitions:
         - prefix_read
         items:
           type: string
+        type: array
+    type: object
+  RoleResponse:
+    properties:
+      display_title:
+        example: UserTitle
+        type: string
+      id:
+        example: 12
+        type: integer
+      permissions:
+        items:
+          $ref: '#/definitions/PermissionsResponse'
+        type: array
+      title:
+        example: RoleTitle
+        type: string
+    type: object
+  RolesResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/RoleResponse'
         type: array
     type: object
   SignInRequest:
@@ -80,6 +183,38 @@ definitions:
       status:
         example: Everything is OK
         type: string
+    type: object
+  UserResponse:
+    properties:
+      email:
+        example: jon_doe@gmail.com
+        type: string
+      id:
+        example: 14
+        type: integer
+      name:
+        example: Jon Doe
+        type: string
+      role:
+        $ref: '#/definitions/RoleResponse'
+      tg_id:
+        example: 131231231231323
+        type: integer
+    type: object
+  UserUpdateRequest:
+    properties:
+      email:
+        example: jon_doe@gmail.com
+        type: string
+      name:
+        example: Jon Doe
+        type: string
+      password:
+        example: qwerty
+        type: string
+      tg_id:
+        example: 131231231231323
+        type: integer
     type: object
 host: localhost:8080/api
 info:
@@ -183,16 +318,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Status'
+            $ref: '#/definitions/BudgetsResponse'
       security:
-      - ApiKeyAuth:
-        - admin
+      - ApiKeyAuth: []
       tags:
       - Budgets
     post:
       consumes:
       - application/json
-      description: Method that store role
+      description: Method that store budget
       operationId: store-budgets
       parameters:
       - description: Budget form
@@ -200,7 +334,7 @@ paths:
         name: form
         required: true
         schema:
-          $ref: '#/definitions/Role'
+          $ref: '#/definitions/BudgetCreateRequest'
       produces:
       - application/json
       responses:
@@ -209,8 +343,7 @@ paths:
           schema:
             $ref: '#/definitions/Status'
       security:
-      - ApiKeyAuth:
-        - admin
+      - ApiKeyAuth: []
       tags:
       - Budgets
   /budgets/{id}:
@@ -233,8 +366,7 @@ paths:
           schema:
             $ref: '#/definitions/Status'
       security:
-      - ApiKeyAuth:
-        - admin
+      - ApiKeyAuth: []
       tags:
       - Budgets
     get:
@@ -254,10 +386,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Status'
+            $ref: '#/definitions/BudgetResponse'
       security:
-      - ApiKeyAuth:
-        - admin
+      - ApiKeyAuth: []
       tags:
       - Budgets
     put:
@@ -276,7 +407,7 @@ paths:
         name: form
         required: true
         schema:
-          $ref: '#/definitions/Role'
+          $ref: '#/definitions/BudgetUpdateRequest'
       produces:
       - application/json
       responses:
@@ -289,10 +420,159 @@ paths:
           schema:
             $ref: '#/definitions/Error'
       security:
+      - ApiKeyAuth: []
+      tags:
+      - Budgets
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Method that return list of categories
+      operationId: categories-get
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CategoriesResponse'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Method that store category
+      operationId: categories-store
+      parameters:
+      - description: CategoryRequest form
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/CategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
       - ApiKeyAuth:
         - admin
       tags:
-      - Budgets
+      - Categories
+  /categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Method that delete category by ID
+      operationId: categories-delete
+      parameters:
+      - description: CategoryRequest ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Categories
+    get:
+      consumes:
+      - application/json
+      description: Method that return category by id
+      operationId: category-get
+      parameters:
+      - description: CategoryRequest ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CategoryResponse'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Categories
+    put:
+      consumes:
+      - application/json
+      description: Method that update category by ID
+      operationId: categories-update
+      parameters:
+      - description: CategoryRequest ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: CategoryRequest form
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/CategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Categories
+  /reports/pdf:
+    get:
+      consumes:
+      - application/json
+      description: Method for generation PDF report
+      operationId: reports-pdf
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Reports
+  /reports/xlsx:
+    get:
+      consumes:
+      - application/json
+      description: Method for generation XLSX report
+      operationId: reports-xlsx
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Reports
   /roles:
     get:
       consumes:
@@ -305,7 +585,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/PermissionsResponse'
+            $ref: '#/definitions/RolesResponse'
       security:
       - ApiKeyAuth:
         - admin
@@ -380,7 +660,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Status'
+            $ref: '#/definitions/RoleResponse'
       security:
       - ApiKeyAuth:
         - admin
@@ -467,6 +747,52 @@ paths:
         - admin
       tags:
       - Roles
+  /users/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Method allow to update users
+      operationId: users-update
+      parameters:
+      - description: Users ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User form
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/UserUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Users
+  /users/current:
+    get:
+      consumes:
+      - application/json
+      description: Method allow to get current user
+      operationId: users-current
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - Users
 securityDefinitions:
   ApiKeyAuth:
     in: header

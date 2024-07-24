@@ -9,14 +9,14 @@ import (
 )
 
 // GetBudget
-// @Security ApiKeyAuth[admin]
+// @Security ApiKeyAuth
 // @Tags Budgets
 // @Param id path int true "Budget ID"
 // @Description Method that return budget by ID
 // @ID get-budget
 // @Accept json
 // @Produce json
-// @Success 200 {object} StatusResponse
+// @Success 200 {object} BudgetResponse
 // @Router /budgets/{id} [get]
 func (h *Handler) GetBudget(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64) // budget_id
@@ -40,13 +40,13 @@ func (h *Handler) GetBudget(c *gin.Context) {
 }
 
 // GetUserBudgetList
-// @Security ApiKeyAuth[admin]
+// @Security ApiKeyAuth
 // @Tags Budgets
 // @Description Method that return list of budgets
 // @ID get-budgets
 // @Accept json
 // @Produce json
-// @Success 200 {object} StatusResponse
+// @Success 200 {object} BudgetsResponse
 // @Router /budgets [get]
 func (h *Handler) GetUserBudgetList(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64) // user_id
@@ -71,10 +71,10 @@ func (h *Handler) GetUserBudgetList(c *gin.Context) {
 }
 
 // StoreBudget
-// @Security ApiKeyAuth[admin]
+// @Security ApiKeyAuth
 // @Tags Budgets
-// @Param form body RoleResponseRequest true "Budget form"
-// @Description Method that store role
+// @Param form body BudgetCreateRequest true "Budget form"
+// @Description Method that store budget
 // @ID store-budgets
 // @Accept json
 // @Produce json
@@ -111,10 +111,10 @@ func (h *Handler) StoreBudget(c *gin.Context) {
 }
 
 // UpdateBudget
-// @Security ApiKeyAuth[admin]
+// @Security ApiKeyAuth
 // @Tags Budgets
 // @Param id path int true "Budget ID"
-// @Param form body RoleResponseRequest true "Budget form"
+// @Param form body BudgetUpdateRequest true "Budget form"
 // @Description Method that allow to update budget by ID
 // @ID update-budgets
 // @Accept json
@@ -150,7 +150,7 @@ func (h *Handler) UpdateBudget(c *gin.Context) {
 }
 
 // DeleteBudget
-// @Security ApiKeyAuth[admin]
+// @Security ApiKeyAuth
 // @Tags Budgets
 // @Param id path int true "Budget ID"
 // @Description Method that allow to delete budget by ID
