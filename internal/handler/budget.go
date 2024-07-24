@@ -8,6 +8,16 @@ import (
 	"strconv"
 )
 
+// GetBudget
+// @Security ApiKeyAuth[admin]
+// @Tags Budgets
+// @Param id path int true "Budget ID"
+// @Description Method that return budget by ID
+// @ID get-budget
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Router /budgets/{id} [get]
 func (h *Handler) GetBudget(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64) // budget_id
 	if id == 0 {
@@ -29,6 +39,15 @@ func (h *Handler) GetBudget(c *gin.Context) {
 	c.JSON(http.StatusOK, budget)
 }
 
+// GetUserBudgetList
+// @Security ApiKeyAuth[admin]
+// @Tags Budgets
+// @Description Method that return list of budgets
+// @ID get-budgets
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Router /budgets [get]
 func (h *Handler) GetUserBudgetList(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64) // user_id
 
@@ -51,6 +70,16 @@ func (h *Handler) GetUserBudgetList(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": budgets})
 }
 
+// StoreBudget
+// @Security ApiKeyAuth[admin]
+// @Tags Budgets
+// @Param form body RoleResponseRequest true "Budget form"
+// @Description Method that store role
+// @ID store-budgets
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Router /budgets [post]
 func (h *Handler) StoreBudget(c *gin.Context) {
 	var budget model.Budget
 	var category model.Category
@@ -81,6 +110,18 @@ func (h *Handler) StoreBudget(c *gin.Context) {
 	})
 }
 
+// UpdateBudget
+// @Security ApiKeyAuth[admin]
+// @Tags Budgets
+// @Param id path int true "Budget ID"
+// @Param form body RoleResponseRequest true "Budget form"
+// @Description Method that allow to update budget by ID
+// @ID update-budgets
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Failure 422 {object} ErrorResponse
+// @Router /budgets/{id} [put]
 func (h *Handler) UpdateBudget(c *gin.Context) {
 	var budget model.Budget
 	_, err := strconv.ParseUint(c.Param("id"), 10, 64) // budget_id
@@ -108,6 +149,16 @@ func (h *Handler) UpdateBudget(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Success updated!"})
 }
 
+// DeleteBudget
+// @Security ApiKeyAuth[admin]
+// @Tags Budgets
+// @Param id path int true "Budget ID"
+// @Description Method that allow to delete budget by ID
+// @ID delete-budgets
+// @Accept json
+// @Produce json
+// @Success 200 {object} StatusResponse
+// @Router /budgets/{id} [delete]
 func (h *Handler) DeleteBudget(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 

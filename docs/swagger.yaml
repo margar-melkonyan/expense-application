@@ -1,0 +1,475 @@
+basePath: /
+definitions:
+  AssignRoleToUserRequest:
+    properties:
+      role_id:
+        example: 14
+        type: integer
+    type: object
+  AuthResponse:
+    properties:
+      access_token:
+        example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aW.xkZXIiLCJpYXQiOjE3MjE4N
+        type: string
+      refresh_token:
+        example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aW.xkZXIiLCJpYXQiOjE3MjE4N
+        type: string
+      type:
+        example: Bearer
+        type: string
+    type: object
+  Error:
+    properties:
+      message:
+        example: Something went wrong try again later!
+        type: string
+    type: object
+  PermissionsResponse:
+    properties:
+      data:
+        example:
+        - prefix_create
+        - prefix_read
+        - '...'
+        items:
+          type: string
+        type: array
+    type: object
+  Role:
+    properties:
+      display_title:
+        example: UserTitle
+        type: string
+      permissions:
+        example:
+        - prefix_create
+        - prefix_read
+        items:
+          type: string
+        type: array
+    type: object
+  SignInRequest:
+    properties:
+      email:
+        example: john.doe@example.com
+        type: string
+      password:
+        example: qwerty
+        type: string
+    type: object
+  SignUpRequest:
+    properties:
+      email:
+        example: john.doe@example.com
+        type: string
+      id:
+        example: 14
+        type: integer
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: qwerty
+        type: string
+      password_confirmation:
+        example: qwerty
+        type: string
+    type: object
+  Status:
+    properties:
+      status:
+        example: Everything is OK
+        type: string
+    type: object
+host: localhost:8080/api
+info:
+  contact: {}
+  description: API for income and expense applications that allows you to receive
+    a report for a certain period
+  title: Expense Application
+  version: "1.0"
+paths:
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Method that logout user on server side
+      operationId: auth-logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth: []
+      summary: Logout
+      tags:
+      - Auth
+  /auth/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Method that return new pair of access and refresh token
+      operationId: auth-refresh-token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/AuthResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: RefreshToken
+      tags:
+      - Auth
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Method allow to enter into account
+      operationId: auth-enter-account
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/AuthResponse'
+      summary: SignIn
+      tags:
+      - Auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Method allow to create account
+      operationId: auth-create-account
+      parameters:
+      - description: account info
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/SignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/AuthResponse'
+      summary: SignUp
+      tags:
+      - Auth
+  /budgets:
+    get:
+      consumes:
+      - application/json
+      description: Method that return list of budgets
+      operationId: get-budgets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Budgets
+    post:
+      consumes:
+      - application/json
+      description: Method that store role
+      operationId: store-budgets
+      parameters:
+      - description: Budget form
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/Role'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Budgets
+  /budgets/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Method that allow to delete budget by ID
+      operationId: delete-budgets
+      parameters:
+      - description: Budget ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Budgets
+    get:
+      consumes:
+      - application/json
+      description: Method that return budget by ID
+      operationId: get-budget
+      parameters:
+      - description: Budget ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Budgets
+    put:
+      consumes:
+      - application/json
+      description: Method that allow to update budget by ID
+      operationId: update-budgets
+      parameters:
+      - description: Budget ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Budget form
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/Role'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Budgets
+  /roles:
+    get:
+      consumes:
+      - application/json
+      description: Method that return list of roles
+      operationId: get-roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/PermissionsResponse'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Roles
+    post:
+      consumes:
+      - application/json
+      description: Method that store role
+      operationId: store-roles
+      parameters:
+      - description: Role form
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/Role'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Roles
+  /roles/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Method that allow to delete role by ID
+      operationId: delete-roles
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Roles
+    get:
+      consumes:
+      - application/json
+      description: Method that return role by ID
+      operationId: get-role
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Roles
+    put:
+      consumes:
+      - application/json
+      description: Method that allow to update role by ID
+      operationId: update-roles
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Role form
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/Role'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Roles
+  /roles/permissions:
+    get:
+      consumes:
+      - application/json
+      description: Method that return list of permissions
+      operationId: get-permissions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/PermissionsResponse'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Roles
+  /users/:id/assign-role:
+    put:
+      consumes:
+      - application/json
+      description: Method that return list of permissions
+      operationId: assign-role-to-users
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Role form
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/AssignRoleToUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Status'
+      security:
+      - ApiKeyAuth:
+        - admin
+      tags:
+      - Roles
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
