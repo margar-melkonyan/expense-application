@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"expense-application/docs"
+	_ "expense-application/docs"
 	"expense-application/internal/middleware"
 	"expense-application/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -18,6 +22,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.MaxMultipartMemory = 10 << 20 // 10 MiB files allow
+
+	docs.SwaggerInfo.BasePath = "/"
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := router.Group("/api")
 	{
