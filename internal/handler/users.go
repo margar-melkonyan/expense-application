@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"expense-application/internal/helper"
 	"expense-application/internal/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -49,9 +50,7 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 
 	err = c.BindJSON(&user)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, helper.FormatValidationError(err))
 		return
 	}
 

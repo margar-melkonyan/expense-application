@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"expense-application/internal/helper"
 	"expense-application/internal/model"
 	"github.com/gin-gonic/gin"
-	"log/slog"
 	"net/http"
 )
 
@@ -22,7 +22,8 @@ func (h *Handler) SignUp(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
-		slog.Error(err.Error())
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
+		return
 	}
 
 	body, err := h.services.SignUp(&user)
@@ -49,13 +50,13 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
 		return
 	}
 
 	body, err := h.services.SignIn(&user)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
 		return
 	}
 

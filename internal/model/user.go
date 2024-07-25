@@ -19,7 +19,7 @@ type User struct {
 
 	// fields only for request
 	RefreshToken         []byte `json:"refresh_token,omitempty" gorm:"refresh_token:jsonb;default:null"`
-	PasswordConfirmation string `json:"password_confirmation" gorm:"-" binding:"omitempty,ascii,gt=7,eqfield=password"`
+	PasswordConfirmation string `json:"password_confirmation" gorm:"-" binding:"omitempty,ascii,gt=8,eqfield=Password"`
 }
 
 type UserResponse struct {
