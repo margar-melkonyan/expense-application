@@ -49,7 +49,8 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
-		slog.Error(err.Error())
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		return
 	}
 
 	body, err := h.services.SignIn(&user)
