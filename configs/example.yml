@@ -6,3 +6,6 @@ db:
   port: "db_port"
 http_server:
   port: "http_server_port"
+auth:
+  access_token_ttl: 15m
+  refresh_token_ttl: 720h

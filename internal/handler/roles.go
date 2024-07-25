@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"expense-application/internal/helper"
 	"expense-application/internal/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -73,9 +74,7 @@ func (h *Handler) StoreRole(c *gin.Context) {
 	err := c.BindJSON(&role)
 
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
 	}
 
 	err = h.services.Role.StoreRole(&role)
@@ -118,9 +117,7 @@ func (h *Handler) UpdateRole(c *gin.Context) {
 	err := c.BindJSON(&role)
 
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
 		return
 	}
 
@@ -194,9 +191,7 @@ func (h *Handler) AssignRoleToUser(c *gin.Context) {
 	err := c.ShouldBindJSON(&userRole)
 
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
 		return
 	}
 	userRole.UserID = uint(id)

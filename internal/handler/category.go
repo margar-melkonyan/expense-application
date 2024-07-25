@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"expense-application/internal/helper"
 	"expense-application/internal/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -67,7 +68,7 @@ func (h *Handler) StoreCategory(c *gin.Context) {
 	err := c.ShouldBindJSON(&category)
 
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
 		return
 	}
 
@@ -78,7 +79,7 @@ func (h *Handler) StoreCategory(c *gin.Context) {
 
 	_, err = h.services.Category.Store(category)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
 		return
 	}
 
@@ -104,7 +105,7 @@ func (h *Handler) UpdateCategory(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&category)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
 		return
 	}
 

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"expense-application/internal/helper"
 	"expense-application/internal/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -88,7 +89,7 @@ func (h *Handler) StoreBudget(c *gin.Context) {
 	err := c.ShouldBindJSON(&budget)
 
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
 		return
 	}
 
@@ -101,7 +102,7 @@ func (h *Handler) StoreBudget(c *gin.Context) {
 
 	err = h.services.Budget.Store(budget, category)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, helper.FormatValidationError(err))
 		return
 	}
 
@@ -135,14 +136,14 @@ func (h *Handler) UpdateBudget(c *gin.Context) {
 
 	err = c.BindJSON(&budget)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
 		return
 	}
 
 	_, err = h.services.Budget.Update(budget)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, helper.FormatValidationError(err))
 		return
 	}
 
