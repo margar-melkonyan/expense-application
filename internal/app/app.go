@@ -5,6 +5,7 @@ import (
 	"expense-application/internal/db"
 	"expense-application/internal/handler"
 	"expense-application/internal/repository"
+	"expense-application/internal/seeder"
 	"expense-application/internal/service"
 	"expense-application/pkg/config"
 	"fmt"
@@ -23,7 +24,9 @@ func Run(config *config.Config) {
 	}
 
 	repos := repository.NewRepository(postgresDB)
+	seeders := seeder.NewSeeder(postgresDB)
 	services := service.NewService(repos)
+	seeders.User.Seed()
 
 	switch os.Getenv("SERVICE") {
 	case "api":
