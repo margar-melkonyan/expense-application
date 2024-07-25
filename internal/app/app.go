@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"expense-application/internal/db"
 	"expense-application/internal/handler"
 	"expense-application/internal/repository"
@@ -10,6 +11,8 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func Run(config *config.Config) {
@@ -29,6 +32,16 @@ func Run(config *config.Config) {
 
 		if err := srv.run(config.HttpServer.Port, handlers); err != nil {
 			slog.Error(fmt.Sprintf("Error occured while running http server: %v", err.Error()))
+		}
+
+		sc := make(chan os.Signal, 1)
+		signal.Notify(sc, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
+		<-sc
+
+		slog.Info("TodoApp Shutting Down")
+
+		if err := srv.shutdown(context.Background()); err != nil {
+			slog.Info("error occured on server shutting down: %s", err.Error())
 		}
 	case "tg-bot":
 		runBot(repos, services)
