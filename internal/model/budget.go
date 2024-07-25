@@ -6,7 +6,7 @@ import (
 )
 
 type Budget struct {
-	Id         uint           `json:"id,omitempty" gorm:"primaryKey;autoIncrement" binding:"numeric,min=1"`
+	Id         uint           `json:"id,omitempty" gorm:"primaryKey;autoIncrement" binding:"omitempty,numeric,min=1"`
 	Title      string         `json:"title" gorm:"size:4096;not null" binding:"required,alphanum,min=6,max=4096"`
 	Type       string         `json:"type" gorm:"type:varchar(255);not null" binding:"required,alpha,oneof=income expense"`
 	Amount     float64        `json:"amount" gorm:"amount:bigint;not null" binding:"required,numeric,min=1,max=1000000"`

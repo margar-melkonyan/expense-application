@@ -87,12 +87,12 @@ func (h *Handler) StoreBudget(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&budget)
 
-	category, _ = h.services.Category.GetCategoryBySlug(budget.CategorySlug)
-
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
+
+	category, _ = h.services.Category.GetCategoryBySlug(budget.CategorySlug)
 
 	if !slices.Contains(types, budget.Type) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Type is not income or expense"})

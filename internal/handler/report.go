@@ -3,7 +3,6 @@ package handler
 import (
 	"bytes"
 	"expense-application/internal/model"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/johnfercher/maroto/v2/pkg/core"
 	"net/http"
@@ -21,7 +20,7 @@ import (
 // @Router /reports/pdf [get]
 func (h *Handler) GeneratePDFReport(c *gin.Context) {
 	budgetType := c.Query("budget_type")
-	fmt.Println(budgetType)
+
 	if !slices.Contains([]string{"income", "expense"}, budgetType) && budgetType != "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "budget type is incorrect",
@@ -70,7 +69,7 @@ func (h *Handler) GeneratePDFReport(c *gin.Context) {
 // @Router /reports/xlsx [get]
 func (h *Handler) GenerateXLSXReport(c *gin.Context) {
 	budgetType := c.Query("budget_type")
-	fmt.Println(budgetType)
+
 	if !slices.Contains([]string{"income", "expense"}, budgetType) && budgetType != "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "budget type is incorrect",

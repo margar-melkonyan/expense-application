@@ -3,7 +3,6 @@ package handler
 import (
 	"expense-application/internal/model"
 	"github.com/gin-gonic/gin"
-	"log/slog"
 	"net/http"
 	"strconv"
 )
@@ -46,6 +45,15 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64) // user_id
 
 	currentUser, _ := c.Get("user")
+	var user model.User
+
+	err = c.BindJSON(&user)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
 	if currentUser.(model.User).Id != uint(id) {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -54,23 +62,9 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	if err != nil {
-		slog.Error(err.Error())
-	}
-
 	if id == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "ID is not a type of int",
-		})
-		return
-	}
-
-	var user model.User
-
-	err = c.BindJSON(&user)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": err.Error(),
 		})
 		return
 	}
