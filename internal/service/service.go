@@ -48,7 +48,7 @@ type Budget interface {
 }
 
 type Tg interface {
-	CommandHandler(bot *tgbotapi.BotAPI, message tgbotapi.Update) error
+	UpdateHandler(bot *tgbotapi.BotAPI, message tgbotapi.Update) error
 	SendMessage(bot *tgbotapi.BotAPI, message tgbotapi.MessageConfig, update tgbotapi.Update) error
 	CreateKeyboard(commands []string, commandsPerRow int) [][]tgbotapi.KeyboardButton
 }

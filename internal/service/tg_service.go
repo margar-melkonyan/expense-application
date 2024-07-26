@@ -3,6 +3,7 @@ package service
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"expense-application/internal/helper"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"log/slog"
 	"math"
 	"reflect"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -42,7 +44,7 @@ var (
 
 	selectedCategory = ""
 	selectedType     = expense
-	userExists       = true
+	userExists       = false
 	budget           = model.Budget{}
 	budgetStatus     = ""
 	user             = model.User{}
@@ -72,13 +74,32 @@ func NewTgService(
 	}
 }
 
+func setParseModeToMarkdownV2(msg *tgbotapi.MessageConfig) {
+	msg.Text = helper.EscapeCharacters(msg.Text)
+	msg.ParseMode = tgbotapi.ModeMarkdownV2
+}
+
+func (s *TgService) checkUserExists(update *tgbotapi.Update) {
+	var err error
+	user, err = s.userRepository.CurrentTgUser(update.Message.From.ID)
+
+	if err == nil {
+		userExists = true
+		return
+	}
+
+	userExists = false
+}
+
 func (s *TgService) createRandomPassword(userID int64) string {
-	bytes := make([]byte, 4)
+	bytes := make([]byte, 6)
 	_, err := rand.Read(bytes)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
 	}
 	randomPassword := base64.StdEncoding.EncodeToString(bytes)
+	re := regexp.MustCompile(`[^a-zA-Z0-9_]`)
+	randomPassword = re.ReplaceAllString(randomPassword, "")
 	user.Password = randomPassword
 	user, _ = s.userRepository.CurrentTgUser(userID)
 	_ = s.userRepository.Update(&user, user.Id)
@@ -86,58 +107,17 @@ func (s *TgService) createRandomPassword(userID int64) string {
 	return randomPassword
 }
 
-func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
+func (s *TgService) UpdateHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) error {
 	categoriesName := s.categoryRepository.GetCategoriesName(selectedType)
 	categoriesName = append(categoriesName, "/menu")
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	_, err := s.userRepository.CurrentTgUser(update.Message.From.ID)
+	s.checkUserExists(&update)
 
 	switch update.Message.Command() {
 	case "start", "register":
-		userExists = false
-
-		if err == nil {
-			userExists = true
-		}
-
-		if !userExists {
-			msg.Text = "To register, enter your email address:"
-			msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
-		} else {
-			msg.Text = "Tap on button menu for start working."
-			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
-				s.CreateKeyboard(
-					[]string{
-						"/menu",
-					},
-					1,
-				)...,
-			)
-		}
+		s.handleRegister(&update, &msg)
 	case "confirm":
-		if user.Email != "" {
-			err = s.userRepository.CreateByTg(&user)
-			user.Email = ""
-
-			if err != nil {
-				return err
-			}
-			userExists = true
-
-			msg.Text = fmt.Sprintf(
-				"You was successfully registered! \\ Your password for web application is: ||%s||",
-				s.createRandomPassword(update.Message.From.ID),
-			)
-			msg.ParseMode = tgbotapi.ModeMarkdownV2
-			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
-				s.CreateKeyboard(
-					mainOptions,
-					2,
-				)...,
-			)
-			break
-		}
-		msg.Text = "Email couldn't be empty!"
+		s.handleConfirmRegistration(&update, &msg)
 	case "cancel":
 		msg.Text = "If you changed mind you can write command /register"
 		msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
@@ -156,11 +136,8 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 				)...,
 			)
 		case "random_password":
-			msg.Text = fmt.Sprintf("Your new password : %s", s.createRandomPassword(update.Message.From.ID))
+			msg.Text = fmt.Sprintf("Your new password : || _%s_ ||", s.createRandomPassword(update.Message.From.ID))
 			msg.ParseMode = tgbotapi.ModeMarkdownV2
-			if err != nil {
-				slog.Error(err.Error())
-			}
 		case "expense":
 			selectedType = expense
 			categoriesName = s.categoryRepository.GetCategoriesName(selectedType)
@@ -279,14 +256,7 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 
 	switch budgetStatus {
 	case "write_title":
-		budget.User, err = s.userRepository.CurrentTgUser(update.Message.From.ID)
-
-		if err != nil {
-			budgetStatus = ""
-			msg.Text = "You're not registered!\n Enter /register for registration"
-			break
-		}
-
+		budget.User, _ = s.userRepository.CurrentTgUser(update.Message.From.ID)
 		budget.Type = selectedType
 		budget.Title = update.Message.Text
 		msg.Text = "Enter amount:"
@@ -323,7 +293,9 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 		}
 	}
 
-	if slices.Contains(categoriesName[:len(categoriesName)-1], update.Message.Text) && categoriesName != nil && selectedCategory == "" {
+	if slices.
+		Contains(categoriesName[:len(categoriesName)-1], update.Message.Text) &&
+		categoriesName != nil && selectedCategory == "" {
 		selectedCategory = update.Message.Text
 		msg.Text = fmt.Sprintf("Category \"%s\" was selected", selectedCategory)
 
@@ -348,13 +320,52 @@ func (s *TgService) CommandHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update)
 	return s.SendMessage(bot, msg, update)
 }
 
+func (s *TgService) handleRegister(update *tgbotapi.Update, msg *tgbotapi.MessageConfig) {
+	if !userExists {
+		msg.Text = "To register, enter your email address:"
+		msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+	} else {
+		msg.Text = "Tap on button menu for start working."
+		msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+			s.CreateKeyboard(
+				[]string{
+					"/menu",
+				},
+				1,
+			)...,
+		)
+	}
+}
+
+func (s *TgService) handleConfirmRegistration(update *tgbotapi.Update, msg *tgbotapi.MessageConfig) {
+	if user.Email != "" {
+		setParseModeToMarkdownV2(msg)
+
+		_ = s.userRepository.CreateByTg(&user)
+		s.checkUserExists(update)
+
+		msg.Text = fmt.Sprintf(
+			"You was successfully registered! Your password for web application is: || _%s_ ||",
+			s.createRandomPassword(update.Message.From.ID),
+		)
+		msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+			s.CreateKeyboard(
+				mainOptions,
+				2,
+			)...,
+		)
+		return
+	}
+	msg.Text = "Email couldn't be empty!"
+}
+
 func (s *TgService) SendMessage(
 	bot *tgbotapi.BotAPI,
 	message tgbotapi.MessageConfig,
 	update tgbotapi.Update,
 ) error {
 	if reflect.TypeOf(message.Text).Kind() == reflect.String && update.Message.Text == "" {
-		message.Text = "Use commands!"
+		message.Text = "Your message should be text or command!"
 	}
 
 	if _, err := bot.Send(message); err != nil {
