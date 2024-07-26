@@ -19,10 +19,10 @@ func NewUserSeeder(db *gorm.DB) *UserSeeder {
 }
 
 func (s *UserSeeder) Seed() {
-	s.CreateDefaultAdmin()
+	s.createDefaultAdmin()
 }
 
-func (s *UserSeeder) CreateDefaultAdmin() {
+func (s *UserSeeder) createDefaultAdmin() {
 	var admin model.User
 	var role model.Role
 	var userRole model.UserRole
