@@ -26,7 +26,7 @@ func Run(config *config.Config) {
 	repos := repository.NewRepository(postgresDB)
 	seeders := seeder.NewSeeder(postgresDB)
 	services := service.NewService(repos)
-	seeders.User.Seed()
+	seeders.Seed()
 
 	switch os.Getenv("SERVICE") {
 	case "api":
