@@ -28,7 +28,9 @@ func (h *Handler) SignUp(c *gin.Context) {
 
 	body, err := h.services.SignUp(&user)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
@@ -56,7 +58,9 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 	body, err := h.services.SignIn(&user)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 

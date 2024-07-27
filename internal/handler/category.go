@@ -79,7 +79,9 @@ func (h *Handler) StoreCategory(c *gin.Context) {
 
 	_, err = h.services.Category.Store(category)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, helper.FormatValidationError(err))
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 

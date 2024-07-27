@@ -102,7 +102,9 @@ func (h *Handler) StoreBudget(c *gin.Context) {
 
 	err = h.services.Budget.Store(budget, category)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, helper.FormatValidationError(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
@@ -143,7 +145,7 @@ func (h *Handler) UpdateBudget(c *gin.Context) {
 	_, err = h.services.Budget.Update(budget)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, helper.FormatValidationError(err))
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
