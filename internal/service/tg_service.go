@@ -79,7 +79,7 @@ func setParseModeToMarkdownV2(msg *tgbotapi.MessageConfig) {
 	msg.ParseMode = tgbotapi.ModeMarkdownV2
 }
 
-func (s *TgService) checkUserExists(update *tgbotapi.Update) {
+func (s *TgService) checkUserExists(update *tgbotapi.Update, msg *tgbotapi.MessageConfig) {
 	var err error
 	user, err = s.userRepository.CurrentTgUser(update.Message.From.ID)
 
@@ -89,6 +89,8 @@ func (s *TgService) checkUserExists(update *tgbotapi.Update) {
 	}
 
 	userExists = false
+	msg.Text = "For registration use /register command!"
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 }
 
 func (s *TgService) createRandomPassword(userID int64) string {
@@ -100,8 +102,8 @@ func (s *TgService) createRandomPassword(userID int64) string {
 	randomPassword := base64.StdEncoding.EncodeToString(bytes)
 	re := regexp.MustCompile(`[^a-zA-Z0-9_]`)
 	randomPassword = re.ReplaceAllString(randomPassword, "")
-	user.Password = randomPassword
 	user, _ = s.userRepository.CurrentTgUser(userID)
+	user.Password = randomPassword
 	_ = s.userRepository.Update(&user, user.Id)
 
 	return randomPassword
@@ -111,17 +113,18 @@ func (s *TgService) UpdateHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) 
 	categoriesName := s.categoryRepository.GetCategoriesName(selectedType)
 	categoriesName = append(categoriesName, "/menu")
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	s.checkUserExists(&update)
 
 	switch update.Message.Command() {
 	case "start", "register":
 		s.handleRegister(&msg)
+		return s.SendMessage(bot, msg, update)
 	case "confirm":
 		s.handleConfirmRegistration(&update, &msg)
 	case "cancel":
 		s.handleCancel(&msg)
 	}
 
+	s.checkUserExists(&update, &msg)
 	if userExists {
 		switch update.Message.Command() {
 		case "menu":
@@ -246,10 +249,10 @@ func (s *TgService) handleConfirmRegistration(update *tgbotapi.Update, msg *tgbo
 		setParseModeToMarkdownV2(msg)
 
 		_ = s.userRepository.CreateByTg(&user)
-		s.checkUserExists(update)
+		s.checkUserExists(update, msg)
 
 		msg.Text = fmt.Sprintf(
-			"You was successfully registered! Your password for web application is: || _%s_ ||",
+			"You was successfully registered\\! \nYour password for __web application__ is: || _%s_ ||",
 			s.createRandomPassword(update.Message.From.ID),
 		)
 		msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(

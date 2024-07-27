@@ -19,6 +19,7 @@ func EscapeCharacters(str string) string {
 		"\u200B=",
 		"\u200B{",
 		"\u200B}",
+		"!",
 	}
 	for _, char := range charsToEscape {
 		str = strings.ReplaceAll(str, char, "\\"+char)
