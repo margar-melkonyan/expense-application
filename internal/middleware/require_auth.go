@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"expense-application/internal/db"
 	"expense-application/internal/model"
-	"expense-application/pkg/config"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -69,7 +68,7 @@ func RequireAuth(c *gin.Context) {
 			slog.Error(err.Error())
 		}
 
-		postgresDB, err := db.NewPostgresDB(config.MustLoad())
+		postgresDB, err := db.NewPostgresDB()
 		if err != nil {
 			return
 		}
