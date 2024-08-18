@@ -79,7 +79,7 @@ func setParseModeToMarkdownV2(msg *tgbotapi.MessageConfig) {
 	msg.ParseMode = tgbotapi.ModeMarkdownV2
 }
 
-func (s *TgService) checkUserExists(update *tgbotapi.Update) {
+func (s *TgService) checkUserExists(update *tgbotapi.Update, msg *tgbotapi.MessageConfig) {
 	var err error
 	user, err = s.userRepository.CurrentTgUser(update.Message.From.ID)
 
@@ -89,6 +89,8 @@ func (s *TgService) checkUserExists(update *tgbotapi.Update) {
 	}
 
 	userExists = false
+	msg.Text = "For registration use /register command!"
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 }
 
 func (s *TgService) createRandomPassword(userID int64) string {
@@ -100,8 +102,8 @@ func (s *TgService) createRandomPassword(userID int64) string {
 	randomPassword := base64.StdEncoding.EncodeToString(bytes)
 	re := regexp.MustCompile(`[^a-zA-Z0-9_]`)
 	randomPassword = re.ReplaceAllString(randomPassword, "")
-	user.Password = randomPassword
 	user, _ = s.userRepository.CurrentTgUser(userID)
+	user.Password = randomPassword
 	_ = s.userRepository.Update(&user, user.Id)
 
 	return randomPassword
@@ -111,137 +113,42 @@ func (s *TgService) UpdateHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) 
 	categoriesName := s.categoryRepository.GetCategoriesName(selectedType)
 	categoriesName = append(categoriesName, "/menu")
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	s.checkUserExists(&update)
 
 	switch update.Message.Command() {
 	case "start", "register":
-		s.handleRegister(&update, &msg)
+		s.handleRegister(&msg)
+		return s.SendMessage(bot, msg, update)
 	case "confirm":
 		s.handleConfirmRegistration(&update, &msg)
 	case "cancel":
-		msg.Text = "If you changed mind you can write command /register"
-		msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+		s.handleCancel(&msg)
 	}
 
+	s.checkUserExists(&update, &msg)
 	if userExists {
 		switch update.Message.Command() {
 		case "menu":
-			selectedCategory = ""
-
-			msg.Text = "Select button:"
-			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
-				s.CreateKeyboard(
-					mainOptions,
-					2,
-				)...,
-			)
+			s.handleMenu(&msg)
 		case "random_password":
-			msg.Text = fmt.Sprintf("Your new password : || _%s_ ||", s.createRandomPassword(update.Message.From.ID))
-			msg.ParseMode = tgbotapi.ModeMarkdownV2
+			s.handleRandomPassword(&update, &msg)
 		case "expense":
-			selectedType = expense
-			categoriesName = s.categoryRepository.GetCategoriesName(selectedType)
-			categoriesName = append(categoriesName, "/menu")
-
-			msg.Text = fmt.Sprintf("Select %s categories:", selectedType)
-			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
-				s.CreateKeyboard(
-					categoriesName,
-					len(categoriesName)/2,
-				)...,
-			)
-		case "income":
-			selectedType = income
-			categoriesName = s.categoryRepository.GetCategoriesName(selectedType)
-			categoriesName = append(categoriesName, "/menu")
-
-			msg.Text = fmt.Sprintf("Select %s categories:", selectedType)
-			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
-				s.CreateKeyboard(
-					categoriesName,
-					2,
-				)...,
-			)
-		case "incomes":
-			selectedType = income
-			msg.Text = "Select period:"
-			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
-				s.CreateKeyboard(
-					periodOptions,
-					2,
-				)...,
-			)
+			s.handleExpense(&msg)
 		case "expenses":
-			selectedType = expense
-			msg.Text = "Select period:"
-			msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
-				s.CreateKeyboard(
-					periodOptions,
-					2,
-				)...,
-			)
+			s.handleExpenses(&msg)
+		case "income":
+			s.handleIncome(&msg)
+		case "incomes":
+			s.handleIncomes(&msg)
 		case "day":
-			pdf := s.pdfService.GenDayReport(selectedType, user.Id).GetBytes()
-			xlsx := s.xlsxService.GenDayReport(selectedType, user.Id).Bytes()
-
-			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
-				update.Message.Chat.ID, []interface{}{
-					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-						Name:  "report.pdf",
-						Bytes: pdf,
-					}),
-					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-						Name:  "report.xlsx",
-						Bytes: xlsx,
-					}),
-				},
-			))
-			if err != nil {
-				slog.Error(err.Error())
-			}
+			s.handleDay(bot, &update)
 		case "week":
-			pdf := s.pdfService.GenWeekReport(selectedType, user.Id).GetBytes()
-			xlsx := s.xlsxService.GenWeekReport(selectedType, user.Id).Bytes()
-
-			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
-				update.Message.Chat.ID, []interface{}{
-					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-						Name:  "report.pdf",
-						Bytes: pdf,
-					}),
-					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-						Name:  "report.xlsx",
-						Bytes: xlsx,
-					}),
-				},
-			))
-			if err != nil {
-				slog.Error(err.Error())
-			}
+			s.handleWeek(bot, &update)
 		case "month":
-			pdf := s.pdfService.GenMonthReport(selectedType, user.Id).GetBytes()
-			xlsx := s.xlsxService.GenMonthReport(selectedType, user.Id).Bytes()
-
-			_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
-				update.Message.Chat.ID, []interface{}{
-					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-						Name:  "report.pdf",
-						Bytes: pdf,
-					}),
-					tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-						Name:  "report.xlsx",
-						Bytes: xlsx,
-					}),
-				},
-			))
-			if err != nil {
-				slog.Error(err.Error())
-			}
+			s.handleMonth(bot, &update)
 		}
 	}
 
 	if !userExists && !update.Message.IsCommand() {
-		fmt.Println(update.Message.Text)
 		user.Name = fmt.Sprintf("%s %s", update.Message.From.FirstName, update.Message.From.LastName)
 		user.Email = update.Message.Text
 		user.TgId = update.Message.From.ID
@@ -320,7 +227,7 @@ func (s *TgService) UpdateHandler(bot *tgbotapi.BotAPI, update tgbotapi.Update) 
 	return s.SendMessage(bot, msg, update)
 }
 
-func (s *TgService) handleRegister(update *tgbotapi.Update, msg *tgbotapi.MessageConfig) {
+func (s *TgService) handleRegister(msg *tgbotapi.MessageConfig) {
 	if !userExists {
 		msg.Text = "To register, enter your email address:"
 		msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
@@ -342,10 +249,10 @@ func (s *TgService) handleConfirmRegistration(update *tgbotapi.Update, msg *tgbo
 		setParseModeToMarkdownV2(msg)
 
 		_ = s.userRepository.CreateByTg(&user)
-		s.checkUserExists(update)
+		s.checkUserExists(update, msg)
 
 		msg.Text = fmt.Sprintf(
-			"You was successfully registered! Your password for web application is: || _%s_ ||",
+			"You was successfully registered\\! \nYour password for __web application__ is: || _%s_ ||",
 			s.createRandomPassword(update.Message.From.ID),
 		)
 		msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
@@ -357,6 +264,141 @@ func (s *TgService) handleConfirmRegistration(update *tgbotapi.Update, msg *tgbo
 		return
 	}
 	msg.Text = "Email couldn't be empty!"
+}
+
+func (s *TgService) handleCancel(msg *tgbotapi.MessageConfig) {
+	msg.Text = "If you changed mind you can write command /register"
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+}
+
+func (s *TgService) handleMenu(msg *tgbotapi.MessageConfig) {
+	selectedCategory = ""
+
+	msg.Text = "Select button:"
+	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+		s.CreateKeyboard(
+			mainOptions,
+			2,
+		)...,
+	)
+}
+
+func (s *TgService) handleRandomPassword(update *tgbotapi.Update, msg *tgbotapi.MessageConfig) {
+	msg.Text = fmt.Sprintf("Your new password : || _%s_ ||", s.createRandomPassword(update.Message.From.ID))
+	msg.ParseMode = tgbotapi.ModeMarkdownV2
+}
+
+func (s *TgService) handleExpense(msg *tgbotapi.MessageConfig) {
+	selectedType = expense
+	categoriesName := s.categoryRepository.GetCategoriesName(selectedType)
+	categoriesName = append(categoriesName, "/menu")
+
+	msg.Text = fmt.Sprintf("Select %s categories:", selectedType)
+	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+		s.CreateKeyboard(
+			categoriesName,
+			len(categoriesName)/2,
+		)...,
+	)
+}
+
+func (s *TgService) handleExpenses(msg *tgbotapi.MessageConfig) {
+	selectedType = expense
+	msg.Text = "Select period:"
+	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+		s.CreateKeyboard(
+			periodOptions,
+			2,
+		)...,
+	)
+}
+
+func (s *TgService) handleIncome(msg *tgbotapi.MessageConfig) {
+	selectedType = income
+	categoriesName := s.categoryRepository.GetCategoriesName(selectedType)
+	categoriesName = append(categoriesName, "/menu")
+
+	msg.Text = fmt.Sprintf("Select %s categories:", selectedType)
+	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+		s.CreateKeyboard(
+			categoriesName,
+			2,
+		)...,
+	)
+}
+
+func (s *TgService) handleIncomes(msg *tgbotapi.MessageConfig) {
+	selectedType = income
+	msg.Text = "Select period:"
+	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+		s.CreateKeyboard(
+			periodOptions,
+			2,
+		)...,
+	)
+}
+
+func (s *TgService) handleDay(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+	pdf := s.pdfService.GenDayReport(selectedType, user.Id).GetBytes()
+	xlsx := s.xlsxService.GenDayReport(selectedType, user.Id).Bytes()
+
+	_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
+		update.Message.Chat.ID, []interface{}{
+			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+				Name:  "report.pdf",
+				Bytes: pdf,
+			}),
+			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+				Name:  "report.xlsx",
+				Bytes: xlsx,
+			}),
+		},
+	))
+	if err != nil {
+		slog.Error(err.Error())
+	}
+}
+
+func (s *TgService) handleWeek(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+	pdf := s.pdfService.GenWeekReport(selectedType, user.Id).GetBytes()
+	xlsx := s.xlsxService.GenWeekReport(selectedType, user.Id).Bytes()
+
+	_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
+		update.Message.Chat.ID, []interface{}{
+			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+				Name:  "report.pdf",
+				Bytes: pdf,
+			}),
+			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+				Name:  "report.xlsx",
+				Bytes: xlsx,
+			}),
+		},
+	))
+	if err != nil {
+		slog.Error(err.Error())
+	}
+}
+
+func (s *TgService) handleMonth(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
+	pdf := s.pdfService.GenMonthReport(selectedType, user.Id).GetBytes()
+	xlsx := s.xlsxService.GenMonthReport(selectedType, user.Id).Bytes()
+
+	_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
+		update.Message.Chat.ID, []interface{}{
+			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+				Name:  "report.pdf",
+				Bytes: pdf,
+			}),
+			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+				Name:  "report.xlsx",
+				Bytes: xlsx,
+			}),
+		},
+	))
+	if err != nil {
+		slog.Error(err.Error())
+	}
 }
 
 func (s *TgService) SendMessage(
