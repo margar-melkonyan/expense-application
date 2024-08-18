@@ -2,7 +2,6 @@ package main
 
 import (
 	"expense-application/internal/app"
-	"expense-application/pkg/config"
 )
 
 // @title Expense Application
@@ -17,5 +16,5 @@ import (
 // @name Authorization
 
 func main() {
-	app.Run(config.MustLoad())
+	app.Run()
 }

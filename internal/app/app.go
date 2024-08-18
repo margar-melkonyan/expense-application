@@ -7,8 +7,8 @@ import (
 	"expense-application/internal/repository"
 	"expense-application/internal/seeder"
 	"expense-application/internal/service"
-	"expense-application/pkg/config"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"log/slog"
 	"os"
@@ -16,8 +16,16 @@ import (
 	"syscall"
 )
 
-func Run(config *config.Config) {
-	postgresDB, err := db.NewPostgresDB(config)
+func init() {
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Panic("Error loading .env file")
+	}
+}
+
+func Run() {
+	postgresDB, err := db.NewPostgresDB()
 
 	if err != nil {
 		log.Fatalln(err)
@@ -33,7 +41,7 @@ func Run(config *config.Config) {
 		handlers := handler.NewHandler(services)
 		srv := new(Server)
 
-		if err := srv.run(config.HttpServer.Port, handlers); err != nil {
+		if err := srv.run(os.Getenv("SERVER_PORT"), handlers); err != nil {
 			slog.Error(fmt.Sprintf("Error occured while running http server: %v", err.Error()))
 		}
 
@@ -41,7 +49,7 @@ func Run(config *config.Config) {
 		signal.Notify(sc, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 		<-sc
 
-		slog.Info("TodoApp Shutting Down")
+		slog.Info("Expense application Shutting Down")
 
 		if err := srv.shutdown(context.Background()); err != nil {
 			slog.Info("error occured on server shutting down: %s", err.Error())

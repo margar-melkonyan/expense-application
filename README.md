@@ -31,7 +31,6 @@ the API application for further analysis and reporting.
 * telegram-bot-api/v5 v5.5.1
 * golang-jwt/jwt/v5 v5.2.1
 * gosimple/slug v1.14.0
-* ilyakaznacheev/cleanenv v1.5.0
 * maroto/v2 v2.0.7
 * joho/godotenv v1.5.1
 * xuri/excelize/v2 v2.8.1
@@ -68,7 +67,6 @@ Telegram-бот позволяет пользователям взаимодей
 * telegram-bot-api/v5 v5.5.1
 * golang-jwt/jwt/v5 v5.2.1
 * gosimple/slug v1.14.0
-* ilyakaznacheev/cleanenv v1.5.0
 * maroto/v2 v2.0.7
 * joho/godotenv v1.5.1
 * xuri/excelize/v2 v2.8.1

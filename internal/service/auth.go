@@ -5,7 +5,6 @@ import (
 	"errors"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
-	"expense-application/pkg/config"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -18,12 +17,18 @@ import (
 )
 
 var (
-	cfg                     = config.MustLoad()
-	accessTokenKey          []byte
-	refreshTokenKey         []byte
-	accessTokenDuration, _  = time.ParseDuration(cfg.Auth.AccessTokenTTL)
-	refreshTokenDuration, _ = time.ParseDuration(config.MustLoad().Auth.RefreshTokenTTL)
+	accessTokenKey       []byte
+	refreshTokenKey      []byte
+	accessTokenDuration  time.Duration
+	refreshTokenDuration time.Duration
 )
+
+func initValues() {
+	accessTokenKey = []byte(os.Getenv("JWT_ACCESS_TOKEN_SECRET"))
+	refreshTokenKey = []byte(os.Getenv("JWT_REFRESH_TOKEN_SECRET"))
+	accessTokenDuration, _ = time.ParseDuration(os.Getenv("SERVER_ACCESS_TOKEN_TTL"))
+	refreshTokenDuration, _ = time.ParseDuration(os.Getenv("SERVER_REFRESH_TOKEN_TTL"))
+}
 
 type Token struct {
 	RefreshToken string `json:"refresh_token"`
@@ -65,6 +70,8 @@ func (s *AuthService) updateRefreshToken(refreshToken string, user *model.User) 
 }
 
 func (s *AuthService) SignUp(user *model.User) (map[string]string, error) {
+	initValues()
+
 	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	user.Password = string(hash)
 
@@ -97,6 +104,8 @@ func (s *AuthService) SignUp(user *model.User) (map[string]string, error) {
 }
 
 func (s *AuthService) SignIn(user *model.User) (map[string]string, error) {
+	initValues()
+
 	currentUser, err := s.repository.GetByEmail(user.Email)
 	if err != nil {
 		return map[string]string{}, errors.New("this user doesn't exist")
@@ -127,6 +136,8 @@ func (s *AuthService) SignIn(user *model.User) (map[string]string, error) {
 }
 
 func (s *AuthService) RefreshToken(ctx *gin.Context) {
+	initValues()
+
 	var currentUser model.User
 	authorization := ctx.GetHeader("Authorization")
 	initTokenKeys()
