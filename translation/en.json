@@ -1,0 +1,26 @@
+[
+  {
+    "id": "required",
+    "translation": "The {{.attribute}} field is required.'"
+  },
+  {
+    "id": "email",
+    "translation": "The {{.attribute}} field must be a valid email address.'"
+  },
+  {
+    "id": "min",
+    "translation": "The {{.attribute}} field size must be at least {{.min}}."
+  },
+  {
+    "id": "max",
+    "translation": "The {{.attribute}} field size must not be greater than {{.max}}."
+  },
+  {
+    "id": "gt",
+    "translation": "The {{.attribute}} must be greater than {{.gt}}.'"
+  },
+  {
+    "id": "gte",
+    "translation": "The {{.attribute}} must be greater than or equal {{.gte}}.'"
+  }
+]
