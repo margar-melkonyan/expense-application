@@ -38,7 +38,7 @@ func FormatValidationError(err interface{}) ErrorResponse {
 
 	var additionalValue string
 	var additionField string
-	var additionalFields = []string{"min", "max", "date", "gt", "gte"}
+	var additionalFields = []string{"min", "max", "date", "gt", "gte", "eqfield", "oneof"}
 	locale := i18n.NewLocalizer(bundle, "en")
 	for _, ver := range err.(validator.ValidationErrors) {
 		additionField = ""

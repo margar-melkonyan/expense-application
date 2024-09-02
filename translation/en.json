@@ -22,5 +22,21 @@
   {
     "id": "gte",
     "translation": "The {{.attribute}} must be greater than or equal {{.gte}}.'"
+  },
+  {
+    "id": "alphanum",
+    "translation": "The {{.attribute}} may only contain letters and numbers."
+  },
+  {
+    "id": "alpha",
+    "translation": "The {{.attribute}} may only contain letters."
+  },
+  {
+    "id": "numeric",
+    "translation": "The {{.attribute}} must be a number."
+  },
+  {
+    "id": "eqfield",
+    "translation": "The {{.attribute}} must be a field equal to {{.eqfield}}."
   }
 ]
