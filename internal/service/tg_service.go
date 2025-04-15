@@ -7,8 +7,6 @@ import (
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/gosimple/slug"
 	"log/slog"
 	"math"
 	"reflect"
@@ -16,6 +14,9 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/gosimple/slug"
 )
 
 const expense = "expense"
