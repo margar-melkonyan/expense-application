@@ -55,23 +55,20 @@ type TgService struct {
 	categoryRepository repository.Category
 	budgetRepository   repository.Budget
 	userRepository     repository.User
-	pdfService         PDF
-	xlsxService        XLSX
+	ReportServices     map[string]Report
 }
 
 func NewTgService(
 	categoryRepository repository.Category,
 	budgetRepository repository.Budget,
 	userRepository repository.User,
-	pdfService PDF,
-	xlsxService XLSX,
+	reportServices map[string]Report,
 ) *TgService {
 	return &TgService{
 		categoryRepository: categoryRepository,
 		budgetRepository:   budgetRepository,
 		userRepository:     userRepository,
-		pdfService:         pdfService,
-		xlsxService:        xlsxService,
+		ReportServices:     reportServices,
 	}
 }
 
@@ -340,20 +337,16 @@ func (s *TgService) handleIncomes(msg *tgbotapi.MessageConfig) {
 }
 
 func (s *TgService) handleDay(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
-	pdf := s.pdfService.GenDayReport(selectedType, user.Id).GetBytes()
-	xlsx := s.xlsxService.GenDayReport(selectedType, user.Id).Bytes()
+	var files []interface{}
+	for key, value := range s.ReportServices {
+		files = append(files, tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+			Name:  fmt.Sprintf("report.%s", key),
+			Bytes: value.GenDayReport(selectedType, user.Id),
+		}))
+	}
 
 	_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
-		update.Message.Chat.ID, []interface{}{
-			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-				Name:  "report.pdf",
-				Bytes: pdf,
-			}),
-			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-				Name:  "report.xlsx",
-				Bytes: xlsx,
-			}),
-		},
+		update.Message.Chat.ID, files,
 	))
 	if err != nil {
 		slog.Error(err.Error())
@@ -361,20 +354,16 @@ func (s *TgService) handleDay(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 }
 
 func (s *TgService) handleWeek(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
-	pdf := s.pdfService.GenWeekReport(selectedType, user.Id).GetBytes()
-	xlsx := s.xlsxService.GenWeekReport(selectedType, user.Id).Bytes()
+	var files []interface{}
+	for key, value := range s.ReportServices {
+		files = append(files, tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+			Name:  fmt.Sprintf("report.%s", key),
+			Bytes: value.GenWeekReport(selectedType, user.Id),
+		}))
+	}
 
 	_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
-		update.Message.Chat.ID, []interface{}{
-			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-				Name:  "report.pdf",
-				Bytes: pdf,
-			}),
-			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-				Name:  "report.xlsx",
-				Bytes: xlsx,
-			}),
-		},
+		update.Message.Chat.ID, files,
 	))
 	if err != nil {
 		slog.Error(err.Error())
@@ -382,20 +371,16 @@ func (s *TgService) handleWeek(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
 }
 
 func (s *TgService) handleMonth(bot *tgbotapi.BotAPI, update *tgbotapi.Update) {
-	pdf := s.pdfService.GenMonthReport(selectedType, user.Id).GetBytes()
-	xlsx := s.xlsxService.GenMonthReport(selectedType, user.Id).Bytes()
+	var files []interface{}
+	for key, value := range s.ReportServices {
+		files = append(files, tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
+			Name:  fmt.Sprintf("report.%s", key),
+			Bytes: value.GenMonthReport(selectedType, user.Id),
+		}))
+	}
 
 	_, err := bot.SendMediaGroup(tgbotapi.NewMediaGroup(
-		update.Message.Chat.ID, []interface{}{
-			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-				Name:  "report.pdf",
-				Bytes: pdf,
-			}),
-			tgbotapi.NewInputMediaDocument(tgbotapi.FileBytes{
-				Name:  "report.xlsx",
-				Bytes: xlsx,
-			}),
-		},
+		update.Message.Chat.ID, files,
 	))
 	if err != nil {
 		slog.Error(err.Error())

@@ -1,12 +1,12 @@
 package service
 
 import (
-	"bytes"
 	"expense-application/internal/consts"
 	"expense-application/internal/consts/xlsx"
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	"fmt"
+
 	"github.com/xuri/excelize/v2"
 )
 
@@ -68,7 +68,7 @@ func addTotalToXLSX(file *excelize.File, total float64, rowNumber int, stylesID 
 	)
 }
 
-func genXLSX(header string, budgetCategories []model.Category) *bytes.Buffer {
+func genXLSX(header string, budgetCategories []model.Category) []byte {
 	file := excelize.NewFile()
 
 	textStyle, _ := file.NewStyle(&excelize.Style{
@@ -187,19 +187,19 @@ func genXLSX(header string, budgetCategories []model.Category) *bytes.Buffer {
 	addTotalToXLSX(file, totalSum, rowNumber, []int{textStyle, numberFormat})
 	buffer, _ := file.WriteToBuffer()
 
-	return buffer
+	return buffer.Bytes()
 }
 
-func (s XLSXService) GenDayReport(typeBudget string, userId uint) *bytes.Buffer {
+func (s XLSXService) GenDayReport(typeBudget string, userId uint) []byte {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Day)
 	return genXLSX(fmt.Sprintf("Current %s / %s", consts.Day, typeBudget), budgets)
 }
-func (s XLSXService) GenWeekReport(typeBudget string, userId uint) *bytes.Buffer {
+func (s XLSXService) GenWeekReport(typeBudget string, userId uint) []byte {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Week)
 	return genXLSX(fmt.Sprintf("Current %s / %s", consts.Week, typeBudget), budgets)
 }
 
-func (s XLSXService) GenMonthReport(typeBudget string, userId uint) *bytes.Buffer {
+func (s XLSXService) GenMonthReport(typeBudget string, userId uint) []byte {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Month)
 	return genXLSX(fmt.Sprintf("Current %s / %s", consts.Month, typeBudget), budgets)
 }

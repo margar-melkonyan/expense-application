@@ -5,6 +5,9 @@ import (
 	"expense-application/internal/model"
 	"expense-application/internal/repository"
 	"fmt"
+	"log"
+	"log/slog"
+
 	"github.com/johnfercher/maroto/v2"
 	"github.com/johnfercher/maroto/v2/pkg/components/col"
 	"github.com/johnfercher/maroto/v2/pkg/components/line"
@@ -18,8 +21,6 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/core/entity"
 	"github.com/johnfercher/maroto/v2/pkg/props"
 	fontRepository "github.com/johnfercher/maroto/v2/pkg/repository"
-	"log"
-	"log/slog"
 )
 
 type PDFService struct {
@@ -202,7 +203,7 @@ func getWhite() *props.Color {
 	}
 }
 
-func (s *PDFService) GenDayReport(typeBudget string, userId uint) core.Document {
+func (s *PDFService) GenDayReport(typeBudget string, userId uint) []byte {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Day)
 	m := genPDF(fmt.Sprintf("Current %s / %s", consts.Day, typeBudget), budgets)
 
@@ -211,10 +212,10 @@ func (s *PDFService) GenDayReport(typeBudget string, userId uint) core.Document 
 		log.Fatal(err)
 	}
 
-	return document
+	return document.GetBytes()
 }
 
-func (s *PDFService) GenWeekReport(typeBudget string, userId uint) core.Document {
+func (s *PDFService) GenWeekReport(typeBudget string, userId uint) []byte {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Week)
 	m := genPDF(fmt.Sprintf("Current %s / %s", consts.Week, typeBudget), budgets)
 	document, err := m.Generate()
@@ -223,10 +224,10 @@ func (s *PDFService) GenWeekReport(typeBudget string, userId uint) core.Document
 		log.Fatal(err)
 	}
 
-	return document
+	return document.GetBytes()
 }
 
-func (s *PDFService) GenMonthReport(typeBudget string, userId uint) core.Document {
+func (s *PDFService) GenMonthReport(typeBudget string, userId uint) []byte {
 	budgets, _ := s.budgetRepository.GetBudgetByCategoryAndPeriod(typeBudget, userId, consts.Month)
 	m := genPDF(fmt.Sprintf("Current %s / %s", consts.Month, typeBudget), budgets)
 
@@ -235,5 +236,5 @@ func (s *PDFService) GenMonthReport(typeBudget string, userId uint) core.Documen
 		log.Fatal(err)
 	}
 
-	return document
+	return document.GetBytes()
 }

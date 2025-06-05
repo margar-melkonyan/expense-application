@@ -8,12 +8,13 @@ import (
 	"expense-application/internal/seeder"
 	"expense-application/internal/service"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/joho/godotenv"
 )
 
 func init() {
@@ -42,7 +43,7 @@ func Run() {
 		srv := new(Server)
 
 		if err := srv.run(os.Getenv("SERVER_PORT"), handlers); err != nil {
-			slog.Error(fmt.Sprintf("Error occured while running http server: %v", err.Error()))
+			slog.Error(fmt.Sprintf("Error occured while running http server: %s", err.Error()))
 		}
 
 		sc := make(chan os.Signal, 1)
@@ -52,7 +53,7 @@ func Run() {
 		slog.Info("Expense application Shutting Down")
 
 		if err := srv.shutdown(context.Background()); err != nil {
-			slog.Info("error occured on server shutting down: %s", err.Error())
+			slog.Error(fmt.Sprintf("error occured on server shutting down: %s", err.Error()))
 		}
 	case "tg-bot":
 		runBot(repos, services)

@@ -4,10 +4,11 @@ import (
 	"expense-application/internal/repository"
 	"expense-application/internal/service"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"log/slog"
 	"os"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func runBot(repositories *repository.Repository, services *service.Service) {
@@ -25,6 +26,9 @@ func runBot(repositories *repository.Repository, services *service.Service) {
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u)
+	reportServices := make(map[string]service.Report)
+	reportServices["pdf"] = service.NewPdfService(repositories.Budget)
+	reportServices["xlsx"] = service.NewXLSXService(repositories.Budget)
 
 	for update := range updates {
 		if update.Message == nil {
@@ -35,8 +39,7 @@ func runBot(repositories *repository.Repository, services *service.Service) {
 			repositories.Category,
 			repositories.Budget,
 			repositories.User,
-			services.PDF,
-			services.XLSX,
+			reportServices,
 		).UpdateHandler(bot, update); err != nil {
 			slog.Error(err.Error())
 		}
